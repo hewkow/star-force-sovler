@@ -20,4 +20,4 @@
 This project wouldn't be possible without the foundational logic and data provided by the MapleStory community:
 
 - **Inspiration:** Inspired by the simulation logic in [AngeloTadeucci/starforcing-test](https://starforce.tadeucci.dev/).
-- **Rates & Formulas:** Rates, coefficients, and the Star Force cost formula derived from the comprehensive [SuckHard Starforce Calculator](https://brendonmay.github.io/starforceCalculator/).
+- **Rates & Formulas:** Rates, coefficients, and the Star Force cost formula derived from the comprehensive [MathBro's Starforce Calculator](https://brendonmay.github.io/starforceCalculator/).
