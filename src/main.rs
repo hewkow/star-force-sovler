@@ -188,3 +188,6 @@ fn run_single_sim(
             }
     (boom_count, sim_cost)
 }
+
+#[cfg(test)]
+mod tests;
