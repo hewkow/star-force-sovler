@@ -433,7 +433,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "star-force-solver"
+name = "star_force_sim"
 version = "0.1.0"
 dependencies = [
  "itertools",
