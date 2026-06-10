@@ -1,61 +1,71 @@
 use rand::prelude::*;
 use rand::rngs::SmallRng;
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum EnchancementMode {
+    Standard,
+    Level1,
+    Level2,
+    Level3,
+    Level4,
+}
+
 pub struct StarProp {
     pub stars: u8,
-    pub cost_multiply : f32,
-    pub success_rate : f32,
-    pub boom_rate : f32,
+    pub cost_multiply : f64,
+    pub success_rate : f64,
+    pub boom_rate : f64,
 
-    pub enchance_level : Option<u8>
+    pub enchance_level : EnchancementMode,
 }
 
 impl StarProp {
-    pub fn enchance_mode_apply(&mut self) {
+    pub fn enchance_mode_apply(&mut self) -> Result<(), String>{
         let rates = match (self.stars, self.enchance_level) {
             // Stars 15 and 16 share the exact same rules
-            (15..=16, Some(1)) => (1.0, 0.30, 0.0210),
-            (15..=16, Some(2)) => (1.5, 0.30, 0.0140),
-            (15..=16, Some(3)) => (2.5, 0.30, 0.0070),
-            (15..=16, Some(4)) => (3.0, 0.30, 0.0000),
+            (15..=16, EnchancementMode::Level1) => (1.0, 0.30, 0.0210),
+            (15..=16, EnchancementMode::Level2) => (1.5, 0.30, 0.0140),
+            (15..=16, EnchancementMode::Level3) => (2.5, 0.30, 0.0070),
+            (15..=16, EnchancementMode::Level4) => (3.0, 0.30, 0.0000),
 
             // Star 17
-            (17, Some(1))      => (1.0, 0.15, 0.0680),
-            (17, Some(2))      => (1.5, 0.15, 0.0425),
-            (17, Some(3))      => (2.5, 0.15, 0.0170),
-            (17, Some(4))      => (3.0, 0.15, 0.0000),
+            (17, EnchancementMode::Level1)      => (1.0, 0.15, 0.0680),
+            (17, EnchancementMode::Level2)      => (1.5, 0.15, 0.0425),
+            (17, EnchancementMode::Level3)      => (2.5, 0.15, 0.0170),
+            (17, EnchancementMode::Level4)      => (3.0, 0.15, 0.0000),
 
             // Star 18
-            (18, Some(1))      => (1.0, 0.15, 0.0680),
-            (18, Some(2))      => (2.0, 0.12, 0.0440),
-            (18, Some(3))      => (3.5, 0.10, 0.0180),
-            (18, Some(4))      => (6.5, 0.08, 0.0000),
+            (18, EnchancementMode::Level1)      => (1.0, 0.15, 0.0680),
+            (18, EnchancementMode::Level2)      => (2.0, 0.12, 0.0440),
+            (18, EnchancementMode::Level3)      => (3.5, 0.10, 0.0180),
+            (18, EnchancementMode::Level4)      => (6.5, 0.08, 0.0000),
 
             // Star 19
-            (19, Some(1))      => (1.0, 0.15, 0.0850),
-            (19, Some(2))      => (2.0, 0.12, 0.0616),
-            (19, Some(3))      => (3.5, 0.10, 0.0360),
-            (19, Some(4))      => (6.5, 0.08, 0.0000),
+            (19, EnchancementMode::Level1)      => (1.0, 0.15, 0.0850),
+            (19, EnchancementMode::Level2)      => (2.0, 0.12, 0.0616),
+            (19, EnchancementMode::Level3)      => (3.5, 0.10, 0.0360),
+            (19, EnchancementMode::Level4)      => (6.5, 0.08, 0.0000),
 
             // Star 20
-            (20, Some(1))      => (1.0, 0.30, 0.1050),
-            (20, Some(2))      => (2.0, 0.25, 0.0750),
-            (20, Some(3))      => (3.5, 0.20, 0.0400),
-            (20, Some(4))      => (6.5, 0.15, 0.0000),
+            (20, EnchancementMode::Level1)      => (1.0, 0.30, 0.1050),
+            (20, EnchancementMode::Level2)      => (2.0, 0.25, 0.0750),
+            (20, EnchancementMode::Level3)      => (3.5, 0.20, 0.0400),
+            (20, EnchancementMode::Level4)      => (6.5, 0.15, 0.0000),
 
             // Star 21
-            (21, Some(1))      => (1.0, 0.15, 0.1275),
-            (21, Some(2))      => (2.0, 0.12, 0.0880),
-            (21, Some(3))      => (3.5, 0.10, 0.0450),
-            (21, Some(4))      => (6.5, 0.08, 0.0000),
+            (21, EnchancementMode::Level1)      => (1.0, 0.15, 0.1275),
+            (21, EnchancementMode::Level2)      => (2.0, 0.12, 0.0880),
+            (21, EnchancementMode::Level3)      => (3.5, 0.10, 0.0450),
+            (21, EnchancementMode::Level4)      => (6.5, 0.08, 0.0000),
 
             // Fallback case if inputs don't match any system constraints
-            _ => return, 
+            _ => return Err(format!("Invalid enhancement rule for star {}", self.stars)), 
         };
 
         // 2. Destructure the assigned tuple directly into the struct fields.
         // This execution line only runs if a valid match arm above was triggered.
         (self.cost_multiply, self.success_rate, self.boom_rate) = rates;
+        Ok(())
     }
 }
 
