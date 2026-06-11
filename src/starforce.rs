@@ -10,6 +10,10 @@ pub enum EnchancementMode {
     Level4,
 }
 
+pub struct EnchanceConfig {
+    pub mode_15_21 : [EnchancementMode; 7],
+}
+
 pub struct StarProp {
     pub stars: u8,
     pub cost_multiply : f64,
@@ -20,52 +24,89 @@ pub struct StarProp {
 }
 
 impl StarProp {
-    pub fn enchance_mode_apply(&mut self) -> Result<(), String>{
-        let rates = match (self.stars, self.enchance_level) {
-            // Stars 15 and 16 share the exact same rules
-            (15..=16, EnchancementMode::Level1) => (1.0, 0.30, 0.0210),
-            (15..=16, EnchancementMode::Level2) => (1.5, 0.30, 0.0140),
-            (15..=16, EnchancementMode::Level3) => (2.5, 0.30, 0.0070),
-            (15..=16, EnchancementMode::Level4) => (3.0, 0.30, 0.0000),
-
-            // Star 17
-            (17, EnchancementMode::Level1)      => (1.0, 0.15, 0.0680),
-            (17, EnchancementMode::Level2)      => (1.5, 0.15, 0.0425),
-            (17, EnchancementMode::Level3)      => (2.5, 0.15, 0.0170),
-            (17, EnchancementMode::Level4)      => (3.0, 0.15, 0.0000),
-
-            // Star 18
-            (18, EnchancementMode::Level1)      => (1.0, 0.15, 0.0680),
-            (18, EnchancementMode::Level2)      => (2.0, 0.12, 0.0440),
-            (18, EnchancementMode::Level3)      => (3.5, 0.10, 0.0180),
-            (18, EnchancementMode::Level4)      => (6.5, 0.08, 0.0000),
-
-            // Star 19
-            (19, EnchancementMode::Level1)      => (1.0, 0.15, 0.0850),
-            (19, EnchancementMode::Level2)      => (2.0, 0.12, 0.0616),
-            (19, EnchancementMode::Level3)      => (3.5, 0.10, 0.0360),
-            (19, EnchancementMode::Level4)      => (6.5, 0.08, 0.0000),
-
-            // Star 20
-            (20, EnchancementMode::Level1)      => (1.0, 0.30, 0.1050),
-            (20, EnchancementMode::Level2)      => (2.0, 0.25, 0.0750),
-            (20, EnchancementMode::Level3)      => (3.5, 0.20, 0.0400),
-            (20, EnchancementMode::Level4)      => (6.5, 0.15, 0.0000),
-
-            // Star 21
-            (21, EnchancementMode::Level1)      => (1.0, 0.15, 0.1275),
-            (21, EnchancementMode::Level2)      => (2.0, 0.12, 0.0880),
-            (21, EnchancementMode::Level3)      => (3.5, 0.10, 0.0450),
-            (21, EnchancementMode::Level4)      => (6.5, 0.08, 0.0000),
-
-            // Fallback case if inputs don't match any system constraints
-            _ => return Err(format!("Invalid enhancement rule for star {}", self.stars)), 
+    pub fn new(stars : u8, config: &EnchanceConfig) -> Self{
+        let mode = match stars {
+            15..21 => config.mode_15_21[(stars - 15) as usize],
+            _ => EnchancementMode::Standard
         };
 
-        // 2. Destructure the assigned tuple directly into the struct fields.
-        // This execution line only runs if a valid match arm above was triggered.
-        (self.cost_multiply, self.success_rate, self.boom_rate) = rates;
-        Ok(())
+        let (mut cost_mult, mut success, mut boom) = Self::get_base_rates(stars, mode);
+
+        Self {
+            stars,
+            cost_multiply: cost_mult,
+            success_rate: success,
+            boom_rate: boom,
+            enchance_level: mode,
+        }
+    }
+
+    pub fn get_base_rates( stars : u8, mode: EnchancementMode) -> (f64, f64, f64) {
+        match (stars, mode) {
+    // Your custom enhancement rules for 15-21
+                (15..=16, EnchancementMode::Level1) => (1.0, 0.30, 0.0210),
+                (15..=16, EnchancementMode::Level2) => (1.5, 0.30, 0.0140),
+                (15..=16, EnchancementMode::Level3) => (2.5, 0.30, 0.0070),
+                (15..=16, EnchancementMode::Level4) => (3.0, 0.30, 0.0000),
+    
+                (17, EnchancementMode::Level1)      => (1.0, 0.15, 0.0680),
+                (17, EnchancementMode::Level2)      => (1.5, 0.15, 0.0425),
+                (17, EnchancementMode::Level3)      => (2.5, 0.15, 0.0170),
+                (17, EnchancementMode::Level4)      => (3.0, 0.15, 0.0000),
+    
+                (18, EnchancementMode::Level1)      => (1.0, 0.15, 0.0680),
+                (18, EnchancementMode::Level2)      => (2.0, 0.12, 0.0440),
+                (18, EnchancementMode::Level3)      => (3.5, 0.10, 0.0180),
+                (18, EnchancementMode::Level4)      => (6.5, 0.08, 0.0000),
+    
+                (19, EnchancementMode::Level1)      => (1.0, 0.15, 0.0850),
+                (19, EnchancementMode::Level2)      => (2.0, 0.12, 0.0616),
+                (19, EnchancementMode::Level3)      => (3.5, 0.10, 0.0360),
+                (19, EnchancementMode::Level4)      => (6.5, 0.08, 0.0000),
+    
+                (20, EnchancementMode::Level1)      => (1.0, 0.30, 0.1050),
+                (20, EnchancementMode::Level2)      => (2.0, 0.25, 0.0750),
+                (20, EnchancementMode::Level3)      => (3.5, 0.20, 0.0400),
+                (20, EnchancementMode::Level4)      => (6.5, 0.15, 0.0000),
+    
+                (21, EnchancementMode::Level1)      => (1.0, 0.15, 0.1275),
+                (21, EnchancementMode::Level2)      => (2.0, 0.12, 0.0880),
+                (21, EnchancementMode::Level3)      => (3.5, 0.10, 0.0450),
+                (21, EnchancementMode::Level4)      => (6.5, 0.08, 0.0000),
+    
+                // Standard fallback rates mapped from your original array
+                (0, _)  => (1.0, 0.95, 0.0),
+                (1, _)  => (1.0, 0.90, 0.0),
+                (2, _)  => (1.0, 0.85, 0.0),
+                (3, _)  => (1.0, 0.85, 0.0),
+                (4, _)  => (1.0, 0.80, 0.0),
+                (5, _)  => (1.0, 0.75, 0.0),
+                (6, _)  => (1.0, 0.70, 0.0),
+                (7, _)  => (1.0, 0.65, 0.0),
+                (8, _)  => (1.0, 0.60, 0.0),
+                (9, _)  => (1.0, 0.55, 0.0),
+                (10, _) => (1.0, 0.50, 0.0),
+                (11, _) => (1.0, 0.45, 0.0),
+                (12, _) => (1.0, 0.40, 0.0),
+                (13, _) => (1.0, 0.35, 0.0),
+                (14, _) => (1.0, 0.30, 0.0),
+                (15, _) => (1.0, 0.30, 0.021),
+                (16, _) => (1.0, 0.30, 0.021),
+                (17, _) => (1.0, 0.15, 0.068),
+                (18, _) => (1.0, 0.15, 0.068),
+                (19, _) => (1.0, 0.15, 0.085),
+                (20, _) => (1.0, 0.30, 0.105),
+                (21, _) => (1.0, 0.15, 0.1275),
+                (22, _) => (1.0, 0.15, 0.17),
+                (23, _) => (1.0, 0.10, 0.18),
+                (24, _) => (1.0, 0.10, 0.18),
+                (25, _) => (1.0, 0.10, 0.18),
+                (26, _) => (1.0, 0.07, 0.18),
+                (27, _) => (1.0, 0.05, 0.186),
+                (28, _) => (1.0, 0.03, 0.19),
+                (29, _) => (1.0, 0.01, 0.194),
+                _ => (1.0, 0.0, 0.0), // Failsafe for out of bounds
+        }
     }
 }
 

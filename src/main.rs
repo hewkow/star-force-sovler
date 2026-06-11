@@ -4,52 +4,21 @@ use rand::rngs::SmallRng;
 use rayon::prelude::*;
 use std::time::Instant; 
 
-use star_force_sim::starforce::{EnchancementMode, StarProp, kms_cost, run_single_sim};
+use star_force_sim::starforce::{EnchancementMode, EnchanceConfig, StarProp, kms_cost, run_single_sim};
 
 fn main() {
     let start = Instant::now();
     let trials: u32 = 10_000_000;
     let target_stars: usize = 22;
     let equiment_level: u32 = 200;
-    let enchance_mode: [EnchancementMode; 7] = [EnchancementMode::Level4; 7];
 
-    let mut stars: [StarProp; 30]  = [
-        StarProp {stars: 0, cost_multiply: 1.0, success_rate: 0.95, boom_rate: 0.0, enchance_level: EnchancementMode::Standard},  
-        StarProp {stars: 1, cost_multiply: 1.0, success_rate: 0.9, boom_rate: 0.0, enchance_level: EnchancementMode::Standard},   
-        StarProp {stars: 2, cost_multiply: 1.0, success_rate: 0.85, boom_rate: 0.0, enchance_level: EnchancementMode::Standard},  
-        StarProp {stars: 3, cost_multiply: 1.0, success_rate: 0.85, boom_rate: 0.0, enchance_level: EnchancementMode::Standard},  
-        StarProp {stars: 4, cost_multiply: 1.0, success_rate: 0.80, boom_rate: 0.0, enchance_level: EnchancementMode::Standard},  
-        StarProp {stars: 5, cost_multiply: 1.0, success_rate: 0.75, boom_rate: 0.0, enchance_level: EnchancementMode::Standard},  
-        StarProp {stars: 6, cost_multiply: 1.0, success_rate: 0.7, boom_rate: 0.0, enchance_level: EnchancementMode::Standard},  
-        StarProp {stars: 7, cost_multiply: 1.0, success_rate: 0.65, boom_rate: 0.0, enchance_level: EnchancementMode::Standard}, 
-        StarProp {stars: 8, cost_multiply: 1.0, success_rate: 0.6, boom_rate: 0.0, enchance_level: EnchancementMode::Standard},  
-        StarProp {stars: 9, cost_multiply: 1.0, success_rate: 0.55, boom_rate: 0.0, enchance_level: EnchancementMode::Standard}, 
-        StarProp {stars: 10, cost_multiply: 1.0, success_rate: 0.5, boom_rate: 0.0, enchance_level: EnchancementMode::Standard}, 
-        StarProp {stars: 11, cost_multiply: 1.0, success_rate: 0.45, boom_rate: 0.0, enchance_level: EnchancementMode::Standard},
-        StarProp {stars: 12, cost_multiply: 1.0, success_rate: 0.4, boom_rate: 0.0, enchance_level: EnchancementMode::Standard}, 
-        StarProp {stars: 13, cost_multiply: 1.0, success_rate: 0.35, boom_rate: 0.0, enchance_level: EnchancementMode::Standard},
-        StarProp {stars: 14, cost_multiply: 1.0, success_rate: 0.3, boom_rate: 0.0, enchance_level: EnchancementMode::Standard}, 
-        StarProp {stars: 15, cost_multiply: 1.0, success_rate: 0.3, boom_rate: 0.021, enchance_level: enchance_mode[0]},  
-        StarProp {stars: 16, cost_multiply: 1.0, success_rate: 0.3, boom_rate: 0.021, enchance_level: enchance_mode[1]},  
-        StarProp {stars: 17, cost_multiply: 1.0, success_rate: 0.15, boom_rate: 0.068, enchance_level: enchance_mode[2]}, 
-        StarProp {stars: 18, cost_multiply: 1.0, success_rate: 0.15, boom_rate: 0.068, enchance_level: enchance_mode[3]}, 
-        StarProp {stars: 19, cost_multiply: 1.0, success_rate: 0.15, boom_rate: 0.085, enchance_level: enchance_mode[4]}, 
-        StarProp {stars: 20, cost_multiply: 1.0, success_rate: 0.3, boom_rate: 0.105, enchance_level: enchance_mode[5]},  
-        StarProp {stars: 21, cost_multiply: 1.0, success_rate: 0.15, boom_rate: 0.1275, enchance_level: enchance_mode[6]},
-        StarProp {stars: 22, cost_multiply: 1.0, success_rate: 0.15, boom_rate: 0.17, enchance_level: EnchancementMode::Standard},  
-        StarProp {stars: 23, cost_multiply: 1.0, success_rate: 0.10, boom_rate: 0.18, enchance_level: EnchancementMode::Standard},  
-        StarProp {stars: 24, cost_multiply: 1.0, success_rate: 0.10, boom_rate: 0.18, enchance_level: EnchancementMode::Standard},  
-        StarProp {stars: 25, cost_multiply: 1.0, success_rate: 0.10, boom_rate: 0.18, enchance_level: EnchancementMode::Standard},  
-        StarProp {stars: 26, cost_multiply: 1.0, success_rate: 0.07, boom_rate: 0.18, enchance_level: EnchancementMode::Standard},  
-        StarProp {stars: 27, cost_multiply: 1.0, success_rate: 0.05, boom_rate: 0.186, enchance_level: EnchancementMode::Standard}, 
-        StarProp {stars: 28, cost_multiply: 1.0, success_rate: 0.03, boom_rate: 0.19, enchance_level: EnchancementMode::Standard},  
-        StarProp {stars: 29, cost_multiply: 1.0, success_rate: 0.01, boom_rate: 0.194, enchance_level: EnchancementMode::Standard}, 
+    let sim_config = EnchanceConfig {
+        mode_15_21: [EnchancementMode::Level4; 7],
+    };
 
-    ];
-
-    for star in stars.iter_mut().take(22).skip(15) {
-        star.enchance_mode_apply().expect("Fatal error applying enhancement!");
-    }
+    let stars: [StarProp; 30] = core::array::from_fn(|i| {
+        StarProp::new(i as u8, &sim_config)
+    });
 
     
     let mut boom_thresholds = [0u32; 30];
