@@ -26,7 +26,7 @@ pub struct StarProp {
 impl StarProp {
     pub fn new(stars : u8, config: &EnchanceConfig) -> Self{
         let mode = match stars {
-            15..21 => config.mode_15_21[(stars - 15) as usize],
+            15..22 => config.mode_15_21[(stars - 15) as usize],
             _ => EnchancementMode::Standard
         };
 
