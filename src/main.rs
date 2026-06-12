@@ -13,7 +13,7 @@ fn main() {
     let equiment_level: u32 = 200;
 
     let sim_config = EnchanceConfig {
-        mode_15_21: [EnchancementMode::Level2; 7],
+        mode_15_21: [EnchancementMode::Level1; 7],
         star_catch: true,
         ssf_event: true,
         safeguard: true,
