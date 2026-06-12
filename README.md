@@ -1,6 +1,5 @@
 # Maplestory GMS starforce system monte carlo simulator
 
-- Currently bare minimum
 - Star catching
 - Safeguard
 - SSF
