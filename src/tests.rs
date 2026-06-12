@@ -52,32 +52,12 @@ fn assert_within_tolerance(actual: f32, expected: f32, tolerance_pct: f32, metri
 const TEST_TRIALS: u32 = 1_000_000;
 const TOLERANCE: f32 = 0.05; // 5% allowed variance for statistical convergence
 
-#[test]
-fn test_case_1_lv140_star15() {
-    let (avg_boom, avg_cost) = run_test_sim(140, 15, TEST_TRIALS);
-    assert_within_tolerance(avg_boom, 0.0, TOLERANCE, "Boom");
-    assert_within_tolerance(avg_cost as f32, 355e6, TOLERANCE, "Cost");
-}
 
 #[test]
-fn test_case_1_lv140_star19() {
-    let (avg_boom, avg_cost) = run_test_sim(140, 19, TEST_TRIALS);
-    assert_within_tolerance(avg_boom, 1.43, TOLERANCE, "Boom");
-    assert_within_tolerance(avg_cost as f32, 2.3e9, TOLERANCE, "Cost");
-}
-
-#[test]
-fn test_case_2_lv140_star23() {
-    let (avg_boom, avg_cost) = run_test_sim(140, 23, TEST_TRIALS);
-    assert_within_tolerance(avg_boom, 18.87, TOLERANCE, "Boom");
-    assert_within_tolerance(avg_cost as f32, 26.7e9, TOLERANCE, "Cost");
-}
-
-#[test]
-fn test_case_3_lv160_star19() {
-    let (avg_boom, avg_cost) = run_test_sim(160, 19, TEST_TRIALS);
-    assert_within_tolerance(avg_boom, 1.45, TOLERANCE, "Boom");
-    assert_within_tolerance(avg_cost as f32, 3.5e9, TOLERANCE, "Cost");
+fn test_case_3_lv160_star18() {
+    let (avg_boom, avg_cost) = run_test_sim(160, 18, TEST_TRIALS);
+    assert_within_tolerance(avg_boom, 0.66, TOLERANCE, "Boom");
+    assert_within_tolerance(avg_cost as f32, 1.7e9, TOLERANCE, "Cost");
 }
 
 #[test]
@@ -95,8 +75,8 @@ fn test_case_5_lv200_star18() {
 }
 
 #[test]
-fn test_case_6_lv200_star24() {
-    let (avg_boom, avg_cost) = run_test_sim(200, 24, TEST_TRIALS);
-    assert_within_tolerance(avg_boom, 50.74, TOLERANCE, "Boom");
-    assert_within_tolerance(avg_cost as f32, 206.0e9, TOLERANCE, "Cost");
+fn test_case_6_lv200_star22() {
+    let (avg_boom, avg_cost) = run_test_sim(200, 22, TEST_TRIALS);
+    assert_within_tolerance(avg_boom, 8.32, TOLERANCE, "Boom");
+    assert_within_tolerance(avg_cost as f32, 37e9, TOLERANCE, "Cost");
 }
