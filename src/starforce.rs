@@ -12,6 +12,9 @@ pub enum EnchancementMode {
 
 pub struct EnchanceConfig {
     pub mode_15_21 : [EnchancementMode; 7],
+    pub star_catch: bool,
+    pub ssf_event: bool,
+    pub safeguard: bool,
 }
 
 pub struct StarProp {
@@ -26,12 +29,44 @@ pub struct StarProp {
 impl StarProp {
     pub fn new(stars : u8, config: &EnchanceConfig) -> Self{
         let mode = match stars {
-            15..22 => config.mode_15_21[(stars - 15) as usize],
+            15..=21 => config.mode_15_21[(stars - 15) as usize],
             _ => EnchancementMode::Standard
         };
 
         let (mut cost_mult, mut success, mut boom) = Self::get_base_rates(stars, mode);
-
+        if config.star_catch {
+            let base_success = success;
+            success = (base_success * 1.05).min(1.0);
+            
+            let denom = 1.0 - base_success;
+            if denom > 0.0 {
+                let left = 1.0 - success; 
+                boom = (boom * left) / denom;
+            } else {
+                boom = 0.0;
+            }
+        }
+        
+        if config.safeguard && (15..=17).contains(&stars) && boom > 0.0 {
+            boom = 0.0;
+            cost_mult = 3.0;
+        } 
+                
+        if config.ssf_event {
+            match  mode {
+                EnchancementMode::Standard => {
+                    boom *= 0.70;
+                    cost_mult -= 0.30;
+                }
+                EnchancementMode::Level1 => {
+                    boom *= 0.70;
+                    cost_mult -= 0.30;
+                }
+                _ => panic!("Can't use ssf with Enchancement mode!")
+            }
+        }
+        
+        
         Self {
             stars,
             cost_multiply: cost_mult,
