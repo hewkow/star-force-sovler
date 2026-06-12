@@ -1,16 +1,12 @@
 # Maplestory GMS starforce system monte carlo simulator
 
 - Currently bare minimum
-- No Star catching
-- No Safeguard
-- No SSF
-- No New 4 level system
-
-# Roadmap
 - Star catching
 - Safeguard
 - SSF
 - New 4 level system
+
+# Roadmap
 - Solver for cost or spare efficient
 - WebGUI
 - a drag-and-drop formula builder
