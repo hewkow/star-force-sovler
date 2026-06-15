@@ -13,7 +13,8 @@ pub enum EnchancementMode {
 pub struct EnchanceConfig {
     pub mode_15_21 : [EnchancementMode; 7],
     pub star_catch: bool,
-    pub ssf_event: bool,
+    pub ssf_cost_reduce_event: bool,
+    pub ssf_boom_reduce_event: bool,
     pub safeguard: bool,
 }
 
@@ -52,17 +53,27 @@ impl StarProp {
             cost_mult = 3.0;
         } 
                 
-        if config.ssf_event {
+        if config.ssf_boom_reduce_event && (1..=21).contains(&stars) {
             match  mode {
                 EnchancementMode::Standard => {
                     boom *= 0.70;
-                    cost_mult -= 0.30;
                 }
                 EnchancementMode::Level1 => {
                     boom *= 0.70;
+                }
+                _ => panic!("Can't use ssf boom reduce with Enchancement mode!")
+            }
+        }
+
+        if config.ssf_cost_reduce_event {
+            match  mode {
+                EnchancementMode::Standard => {
                     cost_mult -= 0.30;
                 }
-                _ => panic!("Can't use ssf with Enchancement mode!")
+                EnchancementMode::Level1 => {
+                    cost_mult -= 0.30;
+                }
+                _ => panic!("Can't use ssf cost reduce with Enchancement mode!")
             }
         }
         

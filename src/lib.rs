@@ -47,7 +47,8 @@ fn simulate(
     let sim_config = EnchanceConfig {
         mode_15_21: modes,
         star_catch,
-        ssf_event,
+        ssf_boom_reduce_event: ssf_event,
+        ssf_cost_reduce_event: ssf_event,
         safeguard,
     };
 

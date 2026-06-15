@@ -17,7 +17,8 @@ def main():
         target_stars=target_stars,
         equipment_level=equip_level,
         mode_15_21=modes,
-        star_catch=True,
+        ssf_boom_reduce_event=True,
+        ssf_cost_reduce_event=True,
         ssf_event=False,
         safeguard=True,
     )
