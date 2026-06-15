@@ -1,11 +1,9 @@
-pub mod starforce;
-
 use pyo3::prelude::*;
 use rand::prelude::*;
 use rand::rngs::SmallRng;
 use rayon::prelude::*;
 
-use crate::starforce::{kms_cost, run_single_sim, EnchanceConfig, EnchancementMode, StarProp};
+use starforce_core::starforce::{kms_cost, run_single_sim, EnchanceConfig, EnchancementMode, StarProp};
 
 fn parse_mode(mode: &str) -> PyResult<EnchancementMode> {
     match mode {
@@ -22,7 +20,7 @@ fn parse_mode(mode: &str) -> PyResult<EnchancementMode> {
 }
 
 #[pyfunction]
-#[pyo3(signature = (trials, target_stars, equipment_level, mode_15_21, star_catch=true, ssf_event=false, safeguard=false))]
+#[pyo3(signature = (trials, target_stars, equipment_level, mode_15_21, star_catch=true, ssf_boom_reduce_event=false, ssf_cost_reduce_event=false, safeguard=false))]
 fn simulate(
     py: Python<'_>,
     trials: u32,
@@ -30,7 +28,8 @@ fn simulate(
     equipment_level: u32,
     mode_15_21: Vec<String>,
     star_catch: bool,
-    ssf_event: bool,
+    ssf_boom_reduce_event: bool,
+    ssf_cost_reduce_event: bool,
     safeguard: bool,
 ) -> PyResult<(f64, f64)> {
     if mode_15_21.len() != 7 {
@@ -47,8 +46,8 @@ fn simulate(
     let sim_config = EnchanceConfig {
         mode_15_21: modes,
         star_catch,
-        ssf_boom_reduce_event: ssf_event,
-        ssf_cost_reduce_event: ssf_event,
+        ssf_boom_reduce_event,
+        ssf_cost_reduce_event,
         safeguard,
     };
 
@@ -97,7 +96,7 @@ fn simulate(
 }
 
 #[pymodule]
-fn star_force_sim(m: &Bound<'_, PyModule>) -> PyResult<()> {
+fn star_force_sim_py(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(simulate, m)?)?;
     Ok(())
 }

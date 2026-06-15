@@ -1,0 +1,15 @@
+[package]
+name = "star_force_sim_py"
+version = "0.2.0"
+edition = "2024"
+
+[lib]
+name = "star_force_sim_py"
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+starforce_core = { path = "../starforce_core" }
+num-format = "0.4.4"
+rand = { version = "0.9.4", features = ["small_rng"] }
+rayon = "1.12.0"
+pyo3 = { version = "0.21.2", features = ["extension-module"] }

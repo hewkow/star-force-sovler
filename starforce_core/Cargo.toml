@@ -1,0 +1,9 @@
+[package]
+name = "starforce_core"
+version = "0.2.0"
+edition = "2024"
+
+[dependencies]
+num-format = "0.4.4"
+rand = { version = "0.9.4", features = ["small_rng"] }
+rayon = "1.12.0"

@@ -1,5 +1,5 @@
 import time
-import star_force_sim
+import star_force_sim_py
 
 def main():
     trials = 100_000_000
@@ -7,19 +7,18 @@ def main():
     equip_level = 200
 
     # Define the 7 modes mapping to levels 15 through 21
-    modes = ["Level4"] * 7
+    modes = ["Level1"] * 7
 
     print("Starting simulation...")
     start = time.time()
 
-    avg_boom, avg_cost = star_force_sim.simulate(
+    avg_boom, avg_cost = star_force_sim_py.simulate(
         trials=trials,
         target_stars=target_stars,
         equipment_level=equip_level,
         mode_15_21=modes,
         ssf_boom_reduce_event=True,
         ssf_cost_reduce_event=True,
-        ssf_event=False,
         safeguard=True,
     )
 

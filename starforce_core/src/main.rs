@@ -4,7 +4,7 @@ use rand::rngs::SmallRng;
 use rayon::prelude::*;
 use std::time::Instant; 
 
-use star_force_sim::starforce::{EnchancementMode, EnchanceConfig, StarProp, kms_cost, run_single_sim};
+use starforce_core::starforce::{EnchancementMode, EnchanceConfig, StarProp, kms_cost, run_single_sim};
 
 fn main() {
     let start = Instant::now();
