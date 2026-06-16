@@ -9,6 +9,7 @@ use starforce_core::starforce::{EnchancementMode, EnchanceConfig, StarProp, kms_
 fn main() {
     let start = Instant::now();
     let trials: u32 = 10_000_000;
+    let start_stars: usize = 15;
     let target_stars: usize = 23;
     let equiment_level: u32 = 200;
 
@@ -42,7 +43,7 @@ fn main() {
         .map_init(
             || SmallRng::from_os_rng(),
             |rng, _| {
-                run_single_sim(target_stars, rng, &boom_thresholds, &success_thresholds, &cost_lookup)
+                run_single_sim(start_stars ,target_stars, rng, &boom_thresholds, &success_thresholds, &cost_lookup)
             },
         )
         .reduce(
@@ -68,8 +69,7 @@ fn main() {
 mod tests {
     use super::*;
 
-
-    fn run_test_sim(sim_config: &EnchanceConfig, equipment_level: u32, target_stars: usize, trials: u32) -> (f32, u64) {
+    fn run_test_sim(sim_config: &EnchanceConfig, equipment_level: u32, start_stars: usize, target_stars: usize, trials: u32) -> (f32, u64) {
         let stars: [StarProp; 30] = core::array::from_fn(|i| {
             StarProp::new(i as u8, sim_config)
         });
@@ -91,7 +91,7 @@ mod tests {
             .map_init(
                 || SmallRng::from_os_rng(),
                 |rng, _| {
-                    run_single_sim(target_stars, rng, &boom_thresholds, &success_thresholds, &cost_lookup)
+                    run_single_sim(start_stars, target_stars, rng, &boom_thresholds, &success_thresholds, &cost_lookup)
                 },
             )
             .reduce(
@@ -117,13 +117,12 @@ mod tests {
         );
     }
 
-    // Note: Adjusted down from 1_000_000 to prevent CI timeouts (see critique below).
-    // Adjust this back up if running locally and you need strict precision.
     const TEST_TRIALS: u32 = 1_000_000; 
     const TOLERANCE: f32 = 0.05;
 
     struct MatrixEntry {
         level: u32,
+        start_stars: usize,
         target: usize,
         mode: EnchancementMode,
         star_catch: bool,
@@ -139,60 +138,58 @@ mod tests {
         use EnchancementMode::*;
         let matrix = [
             // Standard
-            MatrixEntry { level: 160, target: 18, mode: Standard, star_catch: false, ssf_boom_reduce_event: false, ssf_cost_reduce_event: false, safeguard: false, expected_boom: 0.66, expected_cost: 1.70e9 },
-            MatrixEntry { level: 200, target: 18, mode: Standard, star_catch: false, ssf_boom_reduce_event: false, ssf_cost_reduce_event: false, safeguard: false, expected_boom: 0.66, expected_cost: 3.30e9 },
-            MatrixEntry { level: 200, target: 22, mode: Standard, star_catch: false, ssf_boom_reduce_event: false, ssf_cost_reduce_event: false, safeguard: false, expected_boom: 8.32, expected_cost: 3.70e10 },
-            MatrixEntry { level: 200, target: 22, mode: Standard, star_catch: true,  ssf_boom_reduce_event: false, ssf_cost_reduce_event: false, safeguard: false, expected_boom: 7.40, expected_cost: 3.29e10 },
-            MatrixEntry { level: 200, target: 22, mode: Standard, star_catch: false, ssf_boom_reduce_event: true,  ssf_cost_reduce_event: true,  safeguard: false, expected_boom: 4.22, expected_cost: 1.79e10 },
-            MatrixEntry { level: 200, target: 22, mode: Standard, star_catch: false, ssf_boom_reduce_event: false, ssf_cost_reduce_event: false, safeguard: true,  expected_boom: 4.68, expected_cost: 4.70e10 },
-            MatrixEntry { level: 200, target: 22, mode: Standard, star_catch: true,  ssf_boom_reduce_event: true,  ssf_cost_reduce_event: true,  safeguard: false, expected_boom: 3.80, expected_cost: 1.62e10 },
-            MatrixEntry { level: 200, target: 22, mode: Standard, star_catch: true,  ssf_boom_reduce_event: false, ssf_cost_reduce_event: false, safeguard: true,  expected_boom: 4.22, expected_cost: 4.19e10 },
-            MatrixEntry { level: 200, target: 22, mode: Standard, star_catch: false, ssf_boom_reduce_event: true,  ssf_cost_reduce_event: true,  safeguard: true,  expected_boom: 2.66, expected_cost: 2.60e10 },
-            MatrixEntry { level: 200, target: 22, mode: Standard, star_catch: true,  ssf_boom_reduce_event: true,  ssf_cost_reduce_event: true,  safeguard: true,  expected_boom: 2.41, expected_cost: 2.35e10 },
+            MatrixEntry { level: 160, start_stars: 0, target: 18, mode: Standard, star_catch: false, ssf_boom_reduce_event: false, ssf_cost_reduce_event: false, safeguard: false, expected_boom: 0.66, expected_cost: 1.70e9 },
+            MatrixEntry { level: 200, start_stars: 0, target: 18, mode: Standard, star_catch: false, ssf_boom_reduce_event: false, ssf_cost_reduce_event: false, safeguard: false, expected_boom: 0.66, expected_cost: 3.30e9 },
+            MatrixEntry { level: 200, start_stars: 0, target: 22, mode: Standard, star_catch: false, ssf_boom_reduce_event: false, ssf_cost_reduce_event: false, safeguard: false, expected_boom: 8.32, expected_cost: 3.70e10 },
+            MatrixEntry { level: 200, start_stars: 0, target: 22, mode: Standard, star_catch: true,  ssf_boom_reduce_event: false, ssf_cost_reduce_event: false, safeguard: false, expected_boom: 7.40, expected_cost: 3.29e10 },
+            MatrixEntry { level: 200, start_stars: 0, target: 22, mode: Standard, star_catch: false, ssf_boom_reduce_event: true,  ssf_cost_reduce_event: true,  safeguard: false, expected_boom: 4.22, expected_cost: 1.79e10 },
+            MatrixEntry { level: 200, start_stars: 0, target: 22, mode: Standard, star_catch: false, ssf_boom_reduce_event: false, ssf_cost_reduce_event: false, safeguard: true,  expected_boom: 4.68, expected_cost: 4.70e10 },
+            MatrixEntry { level: 200, start_stars: 0, target: 22, mode: Standard, star_catch: true,  ssf_boom_reduce_event: true,  ssf_cost_reduce_event: true,  safeguard: false, expected_boom: 3.80, expected_cost: 1.62e10 },
+            MatrixEntry { level: 200, start_stars: 0, target: 22, mode: Standard, star_catch: true,  ssf_boom_reduce_event: false, ssf_cost_reduce_event: false, safeguard: true,  expected_boom: 4.22, expected_cost: 4.19e10 },
+            MatrixEntry { level: 200, start_stars: 0, target: 22, mode: Standard, star_catch: false, ssf_boom_reduce_event: true,  ssf_cost_reduce_event: true,  safeguard: true,  expected_boom: 2.66, expected_cost: 2.60e10 },
+            MatrixEntry { level: 200, start_stars: 0, target: 22, mode: Standard, star_catch: true,  ssf_boom_reduce_event: true,  ssf_cost_reduce_event: true,  safeguard: true,  expected_boom: 2.41, expected_cost: 2.35e10 },
 
             // Level 1
-            MatrixEntry { level: 160, target: 18, mode: Level1, star_catch: false, ssf_boom_reduce_event: false, ssf_cost_reduce_event: false, safeguard: false, expected_boom: 0.66, expected_cost: 1.70e9 },
-            MatrixEntry { level: 200, target: 18, mode: Level1, star_catch: false, ssf_boom_reduce_event: false, ssf_cost_reduce_event: false, safeguard: false, expected_boom: 0.66, expected_cost: 3.30e9 },
-            MatrixEntry { level: 200, target: 22, mode: Level1, star_catch: false, ssf_boom_reduce_event: false, ssf_cost_reduce_event: false, safeguard: false, expected_boom: 8.32, expected_cost: 3.70e10 },
-            MatrixEntry { level: 200, target: 22, mode: Level1, star_catch: true,  ssf_boom_reduce_event: false, ssf_cost_reduce_event: false, safeguard: false, expected_boom: 7.40, expected_cost: 3.29e10 },
-            MatrixEntry { level: 200, target: 22, mode: Level1, star_catch: false, ssf_boom_reduce_event: true,  ssf_cost_reduce_event: true,  safeguard: false, expected_boom: 4.22, expected_cost: 1.79e10 },
-            MatrixEntry { level: 200, target: 22, mode: Level1, star_catch: false, ssf_boom_reduce_event: false, ssf_cost_reduce_event: false, safeguard: true,  expected_boom: 4.68, expected_cost: 4.70e10 },
-            MatrixEntry { level: 200, target: 22, mode: Level1, star_catch: true,  ssf_boom_reduce_event: true,  ssf_cost_reduce_event: true,  safeguard: false, expected_boom: 3.80, expected_cost: 1.62e10 },
-            MatrixEntry { level: 200, target: 22, mode: Level1, star_catch: true,  ssf_boom_reduce_event: false, ssf_cost_reduce_event: false, safeguard: true,  expected_boom: 4.22, expected_cost: 4.19e10 },
-            MatrixEntry { level: 200, target: 22, mode: Level1, star_catch: false, ssf_boom_reduce_event: true,  ssf_cost_reduce_event: true,  safeguard: true,  expected_boom: 2.66, expected_cost: 2.60e10 },
-            MatrixEntry { level: 200, target: 22, mode: Level1, star_catch: true,  ssf_boom_reduce_event: true,  ssf_cost_reduce_event: true,  safeguard: true,  expected_boom: 2.41, expected_cost: 2.35e10 },
+            MatrixEntry { level: 160, start_stars: 0, target: 18, mode: Level1, star_catch: false, ssf_boom_reduce_event: false, ssf_cost_reduce_event: false, safeguard: false, expected_boom: 0.66, expected_cost: 1.70e9 },
+            MatrixEntry { level: 200, start_stars: 0, target: 18, mode: Level1, star_catch: false, ssf_boom_reduce_event: false, ssf_cost_reduce_event: false, safeguard: false, expected_boom: 0.66, expected_cost: 3.30e9 },
+            MatrixEntry { level: 200, start_stars: 0, target: 22, mode: Level1, star_catch: false, ssf_boom_reduce_event: false, ssf_cost_reduce_event: false, safeguard: false, expected_boom: 8.32, expected_cost: 3.70e10 },
+            MatrixEntry { level: 200, start_stars: 0, target: 22, mode: Level1, star_catch: true,  ssf_boom_reduce_event: false, ssf_cost_reduce_event: false, safeguard: false, expected_boom: 7.40, expected_cost: 3.29e10 },
+            MatrixEntry { level: 200, start_stars: 0, target: 22, mode: Level1, star_catch: false, ssf_boom_reduce_event: true,  ssf_cost_reduce_event: true,  safeguard: false, expected_boom: 4.22, expected_cost: 1.79e10 },
+            MatrixEntry { level: 200, start_stars: 0, target: 22, mode: Level1, star_catch: false, ssf_boom_reduce_event: false, ssf_cost_reduce_event: false, safeguard: true,  expected_boom: 4.68, expected_cost: 4.70e10 },
+            MatrixEntry { level: 200, start_stars: 0, target: 22, mode: Level1, star_catch: true,  ssf_boom_reduce_event: true,  ssf_cost_reduce_event: true,  safeguard: false, expected_boom: 3.80, expected_cost: 1.62e10 },
+            MatrixEntry { level: 200, start_stars: 0, target: 22, mode: Level1, star_catch: true,  ssf_boom_reduce_event: false, ssf_cost_reduce_event: false, safeguard: true,  expected_boom: 4.22, expected_cost: 4.19e10 },
+            MatrixEntry { level: 200, start_stars: 0, target: 22, mode: Level1, star_catch: false, ssf_boom_reduce_event: true,  ssf_cost_reduce_event: true,  safeguard: true,  expected_boom: 2.66, expected_cost: 2.60e10 },
+            MatrixEntry { level: 200, start_stars: 0, target: 22, mode: Level1, star_catch: true,  ssf_boom_reduce_event: true,  ssf_cost_reduce_event: true,  safeguard: true,  expected_boom: 2.41, expected_cost: 2.35e10 },
 
             // Level 2
-            MatrixEntry { level: 160, target: 18, mode: Level2, star_catch: false, ssf_boom_reduce_event: false, ssf_cost_reduce_event: false, safeguard: false, expected_boom: 0.40, expected_cost: 1.92e9 },
-            MatrixEntry { level: 200, target: 18, mode: Level2, star_catch: false, ssf_boom_reduce_event: false, ssf_cost_reduce_event: false, safeguard: false, expected_boom: 0.40, expected_cost: 3.76e9 },
-            MatrixEntry { level: 200, target: 22, mode: Level2, star_catch: false, ssf_boom_reduce_event: false, ssf_cost_reduce_event: false, safeguard: false, expected_boom: 5.49, expected_cost: 6.19e10 },
-            MatrixEntry { level: 200, target: 22, mode: Level2, star_catch: true,  ssf_boom_reduce_event: false, ssf_cost_reduce_event: false, safeguard: false, expected_boom: 4.92, expected_cost: 5.60e10 },
-            MatrixEntry { level: 200, target: 22, mode: Level2, star_catch: false, ssf_boom_reduce_event: false, ssf_cost_reduce_event: false, safeguard: true,  expected_boom: 3.66, expected_cost: 6.83e10 },
-            MatrixEntry { level: 200, target: 22, mode: Level2, star_catch: true,  ssf_boom_reduce_event: false, ssf_cost_reduce_event: false, safeguard: true,  expected_boom: 3.35, expected_cost: 6.20e10 },
+            MatrixEntry { level: 160, start_stars: 0, target: 18, mode: Level2, star_catch: false, ssf_boom_reduce_event: false, ssf_cost_reduce_event: false, safeguard: false, expected_boom: 0.40, expected_cost: 1.92e9 },
+            MatrixEntry { level: 200, start_stars: 0, target: 18, mode: Level2, star_catch: false, ssf_boom_reduce_event: false, ssf_cost_reduce_event: false, safeguard: false, expected_boom: 0.40, expected_cost: 3.76e9 },
+            MatrixEntry { level: 200, start_stars: 0, target: 22, mode: Level2, star_catch: false, ssf_boom_reduce_event: false, ssf_cost_reduce_event: false, safeguard: false, expected_boom: 5.49, expected_cost: 6.19e10 },
+            MatrixEntry { level: 200, start_stars: 0, target: 22, mode: Level2, star_catch: true,  ssf_boom_reduce_event: false, ssf_cost_reduce_event: false, safeguard: false, expected_boom: 4.92, expected_cost: 5.60e10 },
+            MatrixEntry { level: 200, start_stars: 0, target: 22, mode: Level2, star_catch: false, ssf_boom_reduce_event: false, ssf_cost_reduce_event: false, safeguard: true,  expected_boom: 3.66, expected_cost: 6.83e10 },
+            MatrixEntry { level: 200, start_stars: 0, target: 22, mode: Level2, star_catch: true,  ssf_boom_reduce_event: false, ssf_cost_reduce_event: false, safeguard: true,  expected_boom: 3.35, expected_cost: 6.20e10 },
 
             // Level 3
-            MatrixEntry { level: 160, target: 18, mode: Level3, star_catch: false, ssf_boom_reduce_event: false, ssf_cost_reduce_event: false, safeguard: false, expected_boom: 0.16, expected_cost: 2.48e9 },
-            MatrixEntry { level: 200, target: 18, mode: Level3, star_catch: false, ssf_boom_reduce_event: false, ssf_cost_reduce_event: false, safeguard: false, expected_boom: 0.16, expected_cost: 4.83e9 },
-            MatrixEntry { level: 200, target: 22, mode: Level3, star_catch: false, ssf_boom_reduce_event: false, ssf_cost_reduce_event: false, safeguard: false, expected_boom: 2.23, expected_cost: 8.72e10 },
-            MatrixEntry { level: 200, target: 22, mode: Level3, star_catch: true,  ssf_boom_reduce_event: false, ssf_cost_reduce_event: false, safeguard: false, expected_boom: 2.06, expected_cost: 8.08e10 },
-            MatrixEntry { level: 200, target: 22, mode: Level3, star_catch: false, ssf_boom_reduce_event: false, ssf_cost_reduce_event: false, safeguard: true,  expected_boom: 1.79, expected_cost: 8.83e10 },
-            MatrixEntry { level: 200, target: 22, mode: Level3, star_catch: true,  ssf_boom_reduce_event: false, ssf_cost_reduce_event: false, safeguard: true,  expected_boom: 1.66, expected_cost: 8.14e10 },
+            MatrixEntry { level: 160, start_stars: 0, target: 18, mode: Level3, star_catch: false, ssf_boom_reduce_event: false, ssf_cost_reduce_event: false, safeguard: false, expected_boom: 0.16, expected_cost: 2.48e9 },
+            MatrixEntry { level: 200, start_stars: 0, target: 18, mode: Level3, star_catch: false, ssf_boom_reduce_event: false, ssf_cost_reduce_event: false, safeguard: false, expected_boom: 0.16, expected_cost: 4.83e9 },
+            MatrixEntry { level: 200, start_stars: 0, target: 22, mode: Level3, star_catch: false, ssf_boom_reduce_event: false, ssf_cost_reduce_event: false, safeguard: false, expected_boom: 2.23, expected_cost: 8.72e10 },
+            MatrixEntry { level: 200, start_stars: 0, target: 22, mode: Level3, star_catch: true,  ssf_boom_reduce_event: false, ssf_cost_reduce_event: false, safeguard: false, expected_boom: 2.06, expected_cost: 8.08e10 },
+            MatrixEntry { level: 200, start_stars: 0, target: 22, mode: Level3, star_catch: false, ssf_boom_reduce_event: false, ssf_cost_reduce_event: false, safeguard: true,  expected_boom: 1.79, expected_cost: 8.83e10 },
+            MatrixEntry { level: 200, start_stars: 0, target: 22, mode: Level3, star_catch: true,  ssf_boom_reduce_event: false, ssf_cost_reduce_event: false, safeguard: true,  expected_boom: 1.66, expected_cost: 8.14e10 },
 
             // Level 4
-            MatrixEntry { level: 160, target: 18, mode: Level4, star_catch: false, ssf_boom_reduce_event: false, ssf_cost_reduce_event: false, safeguard: false, expected_boom: 0.0, expected_cost: 2.67e9 },
-            MatrixEntry { level: 200, target: 18, mode: Level4, star_catch: false, ssf_boom_reduce_event: false, ssf_cost_reduce_event: false, safeguard: false, expected_boom: 0.0, expected_cost: 5.22e9 },
-            MatrixEntry { level: 200, target: 22, mode: Level4, star_catch: false, ssf_boom_reduce_event: false, ssf_cost_reduce_event: false, safeguard: false, expected_boom: 0.0, expected_cost: 1.07e11 },
-            MatrixEntry { level: 200, target: 22, mode: Level4, star_catch: true,  ssf_boom_reduce_event: false, ssf_cost_reduce_event: false, safeguard: false, expected_boom: 0.0, expected_cost: 1.02e11 },
-            MatrixEntry { level: 200, target: 22, mode: Level4, star_catch: false, ssf_boom_reduce_event: false, ssf_cost_reduce_event: false, safeguard: true,  expected_boom: 0.0, expected_cost: 1.07e11 },
-            MatrixEntry { level: 200, target: 22, mode: Level4, star_catch: true,  ssf_boom_reduce_event: false, ssf_cost_reduce_event: false, safeguard: true,  expected_boom: 0.0, expected_cost: 1.02e11 },
+            MatrixEntry { level: 160, start_stars: 0, target: 18, mode: Level4, star_catch: false, ssf_boom_reduce_event: false, ssf_cost_reduce_event: false, safeguard: false, expected_boom: 0.0, expected_cost: 2.67e9 },
+            MatrixEntry { level: 200, start_stars: 0, target: 18, mode: Level4, star_catch: false, ssf_boom_reduce_event: false, ssf_cost_reduce_event: false, safeguard: false, expected_boom: 0.0, expected_cost: 5.22e9 },
+            MatrixEntry { level: 200, start_stars: 0, target: 22, mode: Level4, star_catch: false, ssf_boom_reduce_event: false, ssf_cost_reduce_event: false, safeguard: false, expected_boom: 0.0, expected_cost: 1.07e11 },
+            MatrixEntry { level: 200, start_stars: 0, target: 22, mode: Level4, star_catch: true,  ssf_boom_reduce_event: false, ssf_cost_reduce_event: false, safeguard: false, expected_boom: 0.0, expected_cost: 1.02e11 },
+            MatrixEntry { level: 200, start_stars: 0, target: 22, mode: Level4, star_catch: false, ssf_boom_reduce_event: false, ssf_cost_reduce_event: false, safeguard: true,  expected_boom: 0.0, expected_cost: 1.07e11 },
+            MatrixEntry { level: 200, start_stars: 0, target: 22, mode: Level4, star_catch: true,  ssf_boom_reduce_event: false, ssf_cost_reduce_event: false, safeguard: true,  expected_boom: 0.0, expected_cost: 1.02e11 },
 
             // Past 22 stars
-            MatrixEntry { level: 200, target: 23, mode: Standard, star_catch: true, ssf_boom_reduce_event: true, ssf_cost_reduce_event: true, safeguard: false, expected_boom: 8.85, expected_cost: 3.336e10 },
-            MatrixEntry { level: 200, target: 23, mode: Standard, star_catch: true, ssf_boom_reduce_event: true, ssf_cost_reduce_event: true, safeguard: true, expected_boom: 6.12, expected_cost: 4.769e10 },
-            MatrixEntry { level: 200, target: 25, mode: Standard, star_catch: true, ssf_boom_reduce_event: true, ssf_cost_reduce_event: true, safeguard: false, expected_boom: 66.0, expected_cost: 2.25e11 },
-            MatrixEntry { level: 200, target: 25, mode: Standard, star_catch: true, ssf_boom_reduce_event: true, ssf_cost_reduce_event: true, safeguard: true, expected_boom: 49.22, expected_cost: 3.09e11 },
-
-
+            MatrixEntry { level: 200, start_stars: 0, target: 23, mode: Standard, star_catch: true, ssf_boom_reduce_event: true, ssf_cost_reduce_event: true, safeguard: false, expected_boom: 8.85, expected_cost: 3.336e10 },
+            MatrixEntry { level: 200, start_stars: 0, target: 23, mode: Standard, star_catch: true, ssf_boom_reduce_event: true, ssf_cost_reduce_event: true, safeguard: true,  expected_boom: 6.12, expected_cost: 4.769e10 },
+            MatrixEntry { level: 200, start_stars: 0, target: 25, mode: Standard, star_catch: true, ssf_boom_reduce_event: true, ssf_cost_reduce_event: true, safeguard: false, expected_boom: 66.0, expected_cost: 2.25e11 },
+            MatrixEntry { level: 200, start_stars: 0, target: 25, mode: Standard, star_catch: true, ssf_boom_reduce_event: true, ssf_cost_reduce_event: true, safeguard: true,  expected_boom: 49.22, expected_cost: 3.09e11 },
         ];
 
         for (i, case) in matrix.iter().enumerate() {
@@ -205,11 +202,11 @@ mod tests {
             };
 
             let label = format!(
-                "Row {}: Lv{}->{} | Mode:{:?} | Catch:{} SSF_Boom:{} SSF_Cost:{} Safe:{}",
-                i + 1, case.level, case.target, case.mode, case.star_catch, case.ssf_boom_reduce_event, case.ssf_cost_reduce_event, case.safeguard
+                "Row {}: Lv{} | {}->{} | Mode:{:?} | Catch:{} SSF_Boom:{} SSF_Cost:{} Safe:{}",
+                i + 1, case.level, case.start_stars, case.target, case.mode, case.star_catch, case.ssf_boom_reduce_event, case.ssf_cost_reduce_event, case.safeguard
             );
 
-            let (avg_boom, avg_cost) = run_test_sim(&config, case.level, case.target, TEST_TRIALS);
+            let (avg_boom, avg_cost) = run_test_sim(&config, case.level, case.start_stars, case.target, TEST_TRIALS);
 
             assert_within_tolerance(avg_boom, case.expected_boom, TOLERANCE, &format!("[{}] Boom", label));
             assert_within_tolerance(avg_cost as f32, case.expected_cost, TOLERANCE, &format!("[{}] Cost", label));

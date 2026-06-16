@@ -235,13 +235,14 @@ pub fn kms_cost(current_star: u32, item_level: u32) -> u64 {
 
 
 pub fn run_single_sim(
+    start_stars: usize,
     target_star: usize,
     rng: &mut SmallRng,
     boom_thresholds: &[u32; 30],
     success_thresholds: &[u32; 30],
     cost_lookup: &[u64; 30],
 ) -> (u32, u64) {
-    let mut current_star: usize = 0;
+    let mut current_star: usize = start_stars;
     let mut boom_count: u32 = 0;
     let mut sim_cost: u64 = 0;
 

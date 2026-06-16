@@ -20,10 +20,11 @@ fn parse_mode(mode: &str) -> PyResult<EnchancementMode> {
 }
 
 #[pyfunction]
-#[pyo3(signature = (trials, target_stars, equipment_level, mode_15_21, star_catch=true, ssf_boom_reduce_event=false, ssf_cost_reduce_event=false, safeguard=false))]
+#[pyo3(signature = (trials, start_stars , target_stars, equipment_level, mode_15_21, star_catch=true, ssf_boom_reduce_event=false, ssf_cost_reduce_event=false, safeguard=false))]
 fn simulate(
     py: Python<'_>,
     trials: u32,
+    start_stars: usize,
     target_stars: usize,
     equipment_level: u32,
     mode_15_21: Vec<String>,
@@ -75,6 +76,7 @@ fn simulate(
                 || SmallRng::from_os_rng(),
                 |rng, _| {
                     run_single_sim(
+                        start_stars,
                         target_stars,
                         rng,
                         &boom_thresholds,

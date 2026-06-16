@@ -3,6 +3,7 @@ import star_force_sim_py
 
 def main():
     trials = 100_000_000
+    start_stars = 0
     target_stars = 22
     equip_level = 200
 
@@ -14,6 +15,7 @@ def main():
 
     avg_boom, avg_cost = star_force_sim_py.simulate(
         trials=trials,
+        start_stars=start_stars,
         target_stars=target_stars,
         equipment_level=equip_level,
         mode_15_21=modes,
