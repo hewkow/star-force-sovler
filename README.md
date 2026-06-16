@@ -100,6 +100,7 @@ cargo test --release -p starforce_core
 
 ## Roadmap
 
+- [ ] More comprehensive return
 - [ ] Solver: optimal strategy for cost-efficient or boom-minimizing paths
 - [ ] WebGUI with per-slot configuration
 - [ ] Drag-and-drop formula/strategy builder
