@@ -2,7 +2,7 @@
 name = "star_force_sim_py"
 version = "0.2.0"
 edition = "2024"
-license = { text = "MIT" }
+license = "MIT"
 
 [lib]
 name = "star_force_sim_py"
