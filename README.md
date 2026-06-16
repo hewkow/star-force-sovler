@@ -18,7 +18,7 @@ A high-performance Star Force cost simulator for MapleStory GMS, written in Rust
   - `Level3` — further reduced boom, higher cost multiplier (~2.5–3.5×)
   - `Level4` — **zero boom**, highest cost multiplier (~3–6.5×)
   - Per-star configuration: each star from 15 to 21 can be set independently
-
+- **Flexible Starting Star** — configure arbitrary starting star levels 
 - **Validated test matrix** — comprehensive integration tests covering 40+ config combinations, cross-checked against [MathBro's calculator](https://brendonmay.github.io/starforceCalculator/) and [v269 GMS Star Force Calculator](https://starforce.tadeucci.dev/) within 5% tolerance
 
 ---
@@ -74,6 +74,7 @@ import star_force_sim_py
 
 avg_boom, avg_cost = star_force_sim_py.simulate(
     trials=10_000_000,
+    start_stars=15,
     target_stars=22,
     equipment_level=200,
     mode_15_21=["Level1"] * 7,   # one mode per star 15-21

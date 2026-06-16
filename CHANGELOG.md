@@ -2,6 +2,9 @@
 
 All notable changes to this project will be documented in this file.
 
+### [0.3.0] 2026-06-16
+- **Feature:** Add `start_stars` parameter to Rust core simulation function `run_single_sim`, tests, and the PyO3 Python binding `simulate` function (`9be1e13`). Allows simulating starting from an arbitrary star level.
+
 ### [0.2.0] 2026-06-15
 - **Refactor:** Migrate repository into a Cargo workspace monorepo (`8f98558`)
 - **Refactor:** Split SSF into 2 configs and correct boom reduction logic to only apply for 0-21 stars (`9da6dba`)
