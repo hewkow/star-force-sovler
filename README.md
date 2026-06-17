@@ -100,7 +100,10 @@ cargo test --release -p starforce_core
 
 ## Roadmap
 
-- [ ] More comprehensive return
+- [ ] Support comprehensive return structures:
+  - Cumulative Distribution Function (CDF) of total meso cost
+  - Sojourn Time (average attempts and time spent per star level as bottleneck analysis)
+  - Boom Probability Mass Functions (PMF)
 - [ ] Solver: optimal strategy for cost-efficient or boom-minimizing paths
 - [ ] WebGUI with per-slot configuration
 - [ ] Drag-and-drop formula/strategy builder
@@ -109,5 +112,10 @@ cargo test --release -p starforce_core
 
 ## Credits & Acknowledgments
 
-
 - **Rates & Formulas:** Success/boom rates and the KMS cost formula derived from [MathBro's Star Force Calculator](https://brendonmay.github.io/starforceCalculator/) and [AngeloTadeucci/starforcing-test](https://starforce.tadeucci.dev/)
+
+---
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](file:///D:/Projects/star-force-sovler/LICENSE) file for details.
