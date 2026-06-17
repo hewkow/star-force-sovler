@@ -2,33 +2,42 @@
 
 All notable changes to this project will be documented in this file.
 
-### [0.3.0] 2026-06-16
-- **Feature:** Add `start_stars` parameter to Rust core simulation function `run_single_sim`, tests, and the PyO3 Python binding `simulate` function (`9be1e13`). Allows simulating starting from an arbitrary star level.
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-### [0.2.0] 2026-06-15
-- **Refactor:** Migrate repository into a Cargo workspace monorepo (`8f98558`)
-- **Refactor:** Split SSF into 2 configs and correct boom reduction logic to only apply for 0-21 stars (`9da6dba`)
+## [Unreleased]
 
-### 2026-06-12
-- **Build:** Setup PyO3 and Maturin to wrap the Rust core into Python (`214bc9e`)
-- **Documentation:** Update README to remove the "bare minimum" note (`2a074d2`)
-- **Documentation:** Update current features in README.md (`a7d57cc`)
-- **Miscellaneous:** Change little config in main.rs (`4afbcc5`)
-- **Refactor:** Merge branch 'refactor/split-modules' (`d3aae3b`)
-- **Feature:** Implement starcatching, shining star force (SSF) event, and safeguard mechanisms (`42b670a`)
-- **Testing:** Deprecate some old tests (`55f0613`)
-- **Bug Fix:** Fix issues caused by unverified AI code ("commit of shame") (`26e08ea`)
+### Added
+- Roadmap plans to support Cumulative Distribution Function (CDF), Sojourn Time (per-star bottlenecks), and Boom Probability Mass Functions.
 
-### 2026-06-11
-- **Bug Fix:** Correct success rate at 26-29 stars (`192669e`)
-- **Refactor:** Remove Temporal Coupling by moving logic from main to struct (`08a37a7`)
+## [0.3.0] - 2026-06-16
 
-### 2026-06-10
-- **Refactor:** Change u8 to enum, and f32 to f64 for future PyO3 compatibility (`3ed3fe0`)
-- **Refactor:** Split monolith into library and binary crates (`99c4626`)
+### Added
+- Parameter `start_stars` to Rust core simulation engine `run_single_sim`, integration tests, and PyO3 Python binding `simulate` function (`9be1e13`).
 
-### [0.1.0] 2026-06-08
-- **Documentation:** Update reference (`f8331e8`)
-- **Testing:** Create unit tests based on https://brendonmay.github.io/starforceCalculator/ (`c0c6ed6`)
-- **Documentation:** Update link for inspiration source in README (`1e75957`)
-- **Miscellaneous:** Initial prototype: MapleStory Starforce bare minimum, no starcatch, no safeguard, and no SSF (`3ae4ae3`)
+## [0.2.0] - 2026-06-15
+
+### Added
+- PyO3 and Maturin support to compile Rust simulation core as a Python native module (`214bc9e`).
+- Simulation mechanics for star catching, Safeguard protection, and Shining Star Force (SSF) event modifiers (`42b670a`).
+
+### Changed
+- Migrated single monolith repository to a Cargo workspace monorepo layout ([starforce_core](file:///D:/Projects/star-force-sovler/starforce_core) and [starforce_py](file:///D:/Projects/star-force-sovler/starforce_py)) (`8f98558`).
+- Split Shining Star Force (SSF) event configuration into distinct boom reduction and cost reduction settings (`9da6dba`).
+- Refactored simulator code to eliminate temporal coupling by moving logic from binary entry to configuration structs (`08a37a7`).
+- Upgraded scalar primitive parameter types from `u8` to enum classes and `f32` to `f64` for PyO3 alignment (`3ed3fe0`).
+- Re-architected code structure separating library logic from binary entry points (`99c4626`).
+
+### Fixed
+- Corrected Shining Star Force (SSF) event boom reduction logic to only trigger on stars 0–21 (`9da6dba`).
+- Adjusted success rate percentage computation for stars 26-29 (`192669e`).
+- Patched critical bugs introduced from unchecked generative AI scripts (`26e08ea`).
+
+### Deprecated
+- Redundant and outdated unit test cases (`55f0613`).
+
+## [0.1.0] - 2026-06-08
+
+### Added
+- Initial project prototype executing baseline MapleStory GMS Star Force calculations (`3ae4ae3`).
+- Validation unit test suite mapped against BrendonMay's Starforce Calculator (`c0c6ed6`).
