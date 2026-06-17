@@ -333,7 +333,7 @@ checksum = "8ed6a63f02c8539c91a8685a86f4099661ba3da017932f6ebbea6de3f0fa7c90"
 
 [[package]]
 name = "star_force_sim_py"
-version = "0.2.0"
+version = "0.3.0"
 dependencies = [
  "num-format",
  "pyo3",
@@ -344,7 +344,7 @@ dependencies = [
 
 [[package]]
 name = "starforce_core"
-version = "0.2.0"
+version = "0.3.0"
 dependencies = [
  "num-format",
  "rand",
