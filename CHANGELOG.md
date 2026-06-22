@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.4.0] - 2026-06-22
+
 ### Added
 - Python class `PySimResult` exposing high-performance parallel simulation outcomes and detailed distributions to Python.
 - Dataframe-ready getters (`cost_histogram_df`, `session_booms_df`, `per_star_friction_df`) returning column-oriented dictionaries suitable for direct Polars DataFrame ingestion.
