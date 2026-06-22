@@ -2,14 +2,14 @@ use num_format::{Locale, ToFormattedString};
 use rand::prelude::*;
 use rand::rngs::SmallRng;
 use rayon::prelude::*;
-use std::time::Instant; 
+use std::time::Instant;
 
-use starforce_core::starforce::{EnchancementMode, EnchanceConfig, StarProp, kms_cost, run_single_sim};
+use starforce_core::starforce::{EnchancementMode, EnchanceConfig, StarProp, kms_cost, run_single_sim, SimMetrics};
 
 fn main() {
     let start = Instant::now();
-    let trials: u32 = 10_000_000;
-    let start_stars: usize = 15;
+    let trials: u32 = 100_000_000;
+    let start_stars: usize = 0;
     let target_stars: usize = 23;
     let equiment_level: u32 = 200;
 
@@ -21,47 +21,45 @@ fn main() {
         safeguard: false,
     };
 
-    let stars: [StarProp; 30] = core::array::from_fn(|i| {
-        StarProp::new(i as u8, &sim_config)
-    });
-
+    let stars: [StarProp; 30] = core::array::from_fn(|i| StarProp::new(i as u8, &sim_config));
     
     let mut boom_thresholds = [0u32; 30];
     let mut success_thresholds = [0u32; 30];
-    for i in 0..30 {
-        boom_thresholds[i] = (stars[i].boom_rate  * 4294967296.0).round() as u32;
-        success_thresholds[i] = ((stars[i].boom_rate + stars[i].success_rate) * 4294967296.0).round() as u32;
-    }
-
     let mut cost_lookup = [0u64; 30];
+    
     for i in 0..30 {
-        cost_lookup[i] = (kms_cost(i as u32, equiment_level) as f64 * stars[i].cost_multiply).round() as u64 ;
+        boom_thresholds[i] = (stars[i].boom_rate * 4294967296.0).round() as u32;
+        success_thresholds[i] = ((stars[i].boom_rate + stars[i].success_rate) * 4294967296.0).round() as u32;
+        cost_lookup[i] = (kms_cost(i as u32, equiment_level) as f64 * stars[i].cost_multiply).round() as u64;
     }
 
-    let (total_boom, total_cost) = (0..trials)
+    let final_metrics = (0..trials)
         .into_par_iter()
         .map_init(
             || SmallRng::from_os_rng(),
-            |rng, _| {
-                run_single_sim(start_stars ,target_stars, rng, &boom_thresholds, &success_thresholds, &cost_lookup)
-            },
+            |rng, _| run_single_sim(start_stars, target_stars, rng, &boom_thresholds, &success_thresholds, &cost_lookup)
+        )
+        .fold(
+            || SimMetrics::default(),
+            |mut acc, run_result| {
+                acc.add_run(run_result);
+                acc
+            }
         )
         .reduce(
-            || ( 0u32, 0u64), 
-            |acc, current| {
-                (
-                    acc.0 + current.0,
-                    acc.1 + current.1,
-                )
-            },
+            || SimMetrics::default(),
+            |acc1, acc2| acc1.merge(acc2)
         );
+    
 
+    
+    println!("boom avg count : {}", final_metrics.total_boom as f32 / trials as f32);
 
-    println!("boom avg count : {}", total_boom as f32 / trials as f32);
-
-    let s = (total_cost / trials as u64).to_formatted_string(&Locale::en);
+    let s = (final_metrics.total_cost / trials as u128).to_formatted_string(&Locale::en);
     println!("total avg cost for lv{} = {}", equiment_level , s);
-    println!("\nTime elapsed: {:?}", start.elapsed());
+
+    println!("Total runs: {}", final_metrics.total_runs.to_formatted_string(&Locale::en));
+    println!("Time elapsed: {:?}", start.elapsed());
 }
 
 
@@ -86,20 +84,25 @@ mod tests {
             cost_lookup[i] = (kms_cost(i as u32, equipment_level) as f64 * stars[i].cost_multiply).round() as u64;
         }
 
-        let (total_boom, total_cost) = (0..trials)
+        let final_metrics = (0..trials)
             .into_par_iter()
             .map_init(
                 || SmallRng::from_os_rng(),
-                |rng, _| {
-                    run_single_sim(start_stars, target_stars, rng, &boom_thresholds, &success_thresholds, &cost_lookup)
-                },
+                |rng, _| run_single_sim(start_stars ,target_stars, rng, &boom_thresholds, &success_thresholds, &cost_lookup)
+            )
+            .fold(
+                || SimMetrics::default(),
+                |mut acc, run_result| {
+                    acc.add_run(run_result);
+                    acc
+                }
             )
             .reduce(
-                || (0u32, 0u64),
-                |acc, current| (acc.0 + current.0, acc.1 + current.1),
+                || SimMetrics::default(),
+                |acc1, acc2| acc1.merge(acc2)
             );
 
-        (total_boom as f32 / trials as f32, total_cost / trials as u64)
+        (final_metrics.total_boom as f32 / trials as f32, (final_metrics.total_cost / trials as u128) as u64)
     }
 
     fn assert_within_tolerance(actual: f32, expected: f32, tolerance_pct: f32, metric: &str) {

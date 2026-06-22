@@ -1,5 +1,6 @@
 use rand::prelude::*;
 use rand::rngs::SmallRng;
+use std::collections::BTreeMap;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum EnchancementMode {
@@ -231,7 +232,12 @@ pub fn kms_cost(current_star: u32, item_level: u32) -> u64 {
     100 * ((base_calc + 10.0).round() as u64)
 }
 
-
+pub struct RunResult {
+    pub total_cost: u64,
+    pub total_booms: u32,
+    // [Cost Spent, Booms Triggered, Attempts Made]
+    pub per_star_friction: [[u64; 3]; 30],
+}
 
 
 pub fn run_single_sim(
@@ -241,29 +247,102 @@ pub fn run_single_sim(
     boom_thresholds: &[u32; 30],
     success_thresholds: &[u32; 30],
     cost_lookup: &[u64; 30],
-) -> (u32, u64) {
+) -> RunResult {
     let mut current_star: usize = start_stars;
-    let mut boom_count: u32 = 0;
-    let mut sim_cost: u64 = 0;
 
+    let mut result = RunResult {
+        total_cost: 0,
+        total_booms: 0,
+        per_star_friction: [[0; 3]; 30],
+    };
+    
     while current_star < target_star && current_star < 30 {
-        sim_cost += cost_lookup[current_star];
+        let attempt_cost = cost_lookup[current_star];
+        
+        result.total_cost += attempt_cost;
+        result.per_star_friction[current_star][0] += attempt_cost;
+        result.per_star_friction[current_star][2] += 1;
 
         let val: u32 = rng.random();
         
         if val < boom_thresholds[current_star] {
-                    boom_count += 1;
-                    current_star = match current_star {
-                        26.. => 20,
-                        23..=25 => 19,
-                        21..=22 => 17,
-                        20 => 15,
-                        _ => 12,
-                    };
-                } else if val < success_thresholds[current_star] {
-                    current_star += 1;
-                }
-                // Fall into no change
-            }
-    (boom_count, sim_cost)
+            result.total_booms += 1;
+            result.per_star_friction[current_star][1] += 1;
+            current_star = match current_star {
+                26.. => 20,
+                23..=25 => 19,
+                21..=22 => 17,
+                20 => 15,
+                _ => 12,
+            };
+        } else if val < success_thresholds[current_star] {
+            current_star += 1;
+        }
+        // Fall into no change
+    }
+    result
 }
+
+pub const BIN_SIZE: u64 = 100_000_000;
+
+#[derive(Clone, Debug)]
+pub struct SimMetrics {
+    pub cost_histogram: BTreeMap<u64, u32>,
+    pub session_booms_histogram: [u32; 100],
+    pub per_star_friction: [[u64; 3]; 30],
+    pub total_runs: u32,
+    pub total_cost: u128,
+    pub total_boom: u64,
+}
+
+impl Default for SimMetrics {
+    fn default() -> Self {
+        Self {
+            cost_histogram: BTreeMap::new(),
+            session_booms_histogram: [0; 100],
+            per_star_friction: [[0; 3]; 30],
+            total_runs: 0,
+            total_boom: 0,
+            total_cost: 0,
+        }
+    }
+}
+
+impl SimMetrics {
+    pub fn add_run(&mut self, run: RunResult) {
+        let bin = run.total_cost / BIN_SIZE;
+        *self.cost_histogram.entry(bin).or_insert(0) += 1;
+
+        let boom_idx = (run.total_booms as usize).min(99);
+        self.session_booms_histogram[boom_idx] += 1;
+
+        for i in 0..30 {
+            self.per_star_friction[i][0] += run.per_star_friction[i][0];
+            self.per_star_friction[i][1] += run.per_star_friction[i][1];
+            self.per_star_friction[i][2] += run.per_star_friction[i][2];
+        }
+
+        self.total_cost += run.total_cost as u128;
+        self.total_boom += run.total_booms as u64;
+        self.total_runs += 1;
+    }
+
+    pub fn merge(mut self, other: Self) -> Self {
+        for (bin, count) in other.cost_histogram {
+            *self.cost_histogram.entry(bin).or_insert(0) += count;
+        }
+        for i in 0..100 {
+            self.session_booms_histogram[i] += other.session_booms_histogram[i];
+        }
+        for i in 0..30 {
+            self.per_star_friction[i][0] += other.per_star_friction[i][0];
+            self.per_star_friction[i][1] += other.per_star_friction[i][1];
+            self.per_star_friction[i][2] += other.per_star_friction[i][2];
+        }
+        self.total_cost += other.total_cost;
+        self.total_boom += other.total_boom;
+        self.total_runs += other.total_runs;
+        self
+    }
+}
+
