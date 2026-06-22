@@ -8,7 +8,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
-- Roadmap plans to support Cumulative Distribution Function (CDF), Sojourn Time (per-star bottlenecks), and Boom Probability Mass Functions.
+- Comprehensive simulation metrics and distributions tracking to support advanced data return:
+  - `RunResult` struct in `starforce.rs` containing cost spent, boom count, and a `per_star_friction` matrix (cost, booms, attempts per star level).
+  - `SimMetrics` struct in `main.rs` to aggregate simulation runs via Rayon parallel `.fold()` and `.reduce()`.
+  - `cost_histogram` (quantized to 100M meso buckets) to support Cumulative Distribution Function (CDF) plotting.
+  - `session_booms_histogram` (up to 99 booms) to support Boom Probability Mass Function (PMF) plotting.
+  - Cumulative `per_star_friction` array to enable Sojourn Time / bottleneck analysis per star level.
+
+### Changed
+- Refactored `run_single_sim` and the parallel simulation engine in `main.rs` to return `RunResult` and aggregate into `SimMetrics` instead of returning a simple `(u32, u64)` tuple.
+- Accepted a small runtime performance overhead from map/array writes and bucket updates to prioritize comprehensive data returns.
 
 ## [0.3.0] - 2026-06-16
 

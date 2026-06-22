@@ -19,6 +19,7 @@ A high-performance Star Force cost simulator for MapleStory GMS, written in Rust
   - `Level4` — **zero boom**, highest cost multiplier (~3–6.5×)
   - Per-star configuration: each star from 15 to 21 can be set independently
 - **Flexible Starting Star** — configure arbitrary starting star levels 
+- **Comprehensive Simulation Metrics** — tracks and returns detailed statistical distributions (quantized meso cost histogram, session boom distribution, and per-star friction data)
 - **Validated test matrix** — comprehensive integration tests covering 40+ config combinations, cross-checked against [MathBro's calculator](https://brendonmay.github.io/starforceCalculator/) and [v269 GMS Star Force Calculator](https://starforce.tadeucci.dev/) within 5% tolerance
 
 ---
@@ -41,7 +42,7 @@ star-force-sovler/
     └── main.py              # Example Python driver
 ```
 
-**Runtime flow:** `EnchanceConfig` → pre-compute `StarProp[30]` + threshold/cost lookup tables → Rayon parallel `run_single_sim` over N trials → aggregate (avg_boom, avg_cost).
+**Runtime flow:** `EnchanceConfig` → pre-compute `StarProp[30]` + threshold/cost lookup tables → Rayon parallel `run_single_sim` over N trials returning `RunResult` → aggregate into `SimMetrics` (containing `cost_histogram`, `session_booms_histogram`, `per_star_friction`, etc.).
 
 The integer threshold trick (`rate * 2^32` → `u32`) eliminates floating-point comparisons in the hot loop.
 
@@ -100,10 +101,10 @@ cargo test --release -p starforce_core
 
 ## Roadmap
 
-- [ ] Support comprehensive return structures:
-  - Cumulative Distribution Function (CDF) of total meso cost
-  - Sojourn Time (average attempts and time spent per star level as bottleneck analysis)
-  - Boom Probability Mass Functions (PMF)
+- [x] Support comprehensive return structures:
+  - [x] Cumulative Distribution Function (CDF) of total meso cost (100M meso buckets)
+  - [x] Sojourn Time (attempts, booms, and cost spent per star level as bottleneck analysis)
+  - [x] Boom Probability Mass Functions (PMF)
 - [ ] Solver: optimal strategy for cost-efficient or boom-minimizing paths
 - [ ] WebGUI with per-slot configuration
 - [ ] Drag-and-drop formula/strategy builder

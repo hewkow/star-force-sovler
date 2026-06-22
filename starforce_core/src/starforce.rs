@@ -231,7 +231,12 @@ pub fn kms_cost(current_star: u32, item_level: u32) -> u64 {
     100 * ((base_calc + 10.0).round() as u64)
 }
 
-
+pub struct RunResult {
+    pub total_cost: u64,
+    pub total_booms: u32,
+    // [Cost Spent, Booms Triggered, Attempts Made]
+    pub per_star_friction: [[u64; 3]; 30],
+}
 
 
 pub fn run_single_sim(
@@ -241,29 +246,38 @@ pub fn run_single_sim(
     boom_thresholds: &[u32; 30],
     success_thresholds: &[u32; 30],
     cost_lookup: &[u64; 30],
-) -> (u32, u64) {
+) -> RunResult {
     let mut current_star: usize = start_stars;
-    let mut boom_count: u32 = 0;
-    let mut sim_cost: u64 = 0;
 
+    let mut result = RunResult {
+        total_cost: 0,
+        total_booms: 0,
+        per_star_friction: [[0; 3]; 30],
+    };
+    
     while current_star < target_star && current_star < 30 {
-        sim_cost += cost_lookup[current_star];
+        let attempt_cost = cost_lookup[current_star];
+        
+        result.total_cost += attempt_cost;
+        result.per_star_friction[current_star][0] += attempt_cost;
+        result.per_star_friction[current_star][2] += 1;
 
         let val: u32 = rng.random();
         
         if val < boom_thresholds[current_star] {
-                    boom_count += 1;
-                    current_star = match current_star {
-                        26.. => 20,
-                        23..=25 => 19,
-                        21..=22 => 17,
-                        20 => 15,
-                        _ => 12,
-                    };
-                } else if val < success_thresholds[current_star] {
-                    current_star += 1;
-                }
-                // Fall into no change
-            }
-    (boom_count, sim_cost)
+            result.total_booms += 1;
+            result.per_star_friction[current_star][1] += 1;
+            current_star = match current_star {
+                26.. => 20,
+                23..=25 => 19,
+                21..=22 => 17,
+                20 => 15,
+                _ => 12,
+            };
+        } else if val < success_thresholds[current_star] {
+            current_star += 1;
+        }
+        // Fall into no change
+    }
+    result
 }
