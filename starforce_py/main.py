@@ -1,33 +1,23 @@
-import time
 import star_force_sim_py
 
-def main():
-    trials = 10_000_000
-    start_stars = 0
-    target_stars = 23
-    equip_level = 200
+# Returns a PySimResult object
+result = star_force_sim_py.simulate(
+    trials=10_000_000,
+    start_stars=15,
+    target_stars=22,
+    equipment_level=200,
+    mode_15_21=["Level1"] * 7,   # one mode per star 15-21
+    star_catch=True,
+    ssf_boom_reduce_event=True,
+    ssf_cost_reduce_event=True,
+    safeguard=False,
+)
 
-    # Define the 7 modes mapping to levels 15 through 21
-    modes = ["Level1"] * 7
+print(f"Total runs:  {result.total_runs:,}")
+print(f"Total cost:  {result.total_cost:,} mesos")
+print(f"Total booms: {result.total_boom:,}")
 
-    print("Starting simulation...")
-    start = time.time()
-
-    result = star_force_sim_py.simulate(
-        trials=trials,
-        start_stars=start_stars,
-        target_stars=target_stars,
-        equipment_level=equip_level,
-        mode_15_21=modes,
-        ssf_boom_reduce_event=True,
-        ssf_cost_reduce_event=True,
-        safeguard=True,
-    )
-
-    elapsed = time.time() - start
-
-    print(result.per_star_friction_df)
-    print(f"Time elapsed: {elapsed:.3f} seconds")
-
-if __name__ == "__main__":
-    main()
+# Export Polars-compatible dictionaries for DataFrame analysis
+cost_histogram_dict = result.cost_histogram_df        # {"cost_bin_start": [...], "count": [...]}
+session_booms_dict = result.session_booms_df          # {"booms": [...], "count": [...]}
+per_star_friction_dict = result.per_star_friction_df  # {"star": [...], "cost_spent": [...], "booms_triggered": [...], "attempts_made": [...]}
