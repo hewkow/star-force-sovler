@@ -3,7 +3,7 @@ use rand::rngs::SmallRng;
 use std::collections::BTreeMap;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum EnchancementMode {
+pub enum EnhancementMode {
     Standard,
     Level1,
     Level2,
@@ -11,8 +11,8 @@ pub enum EnchancementMode {
     Level4,
 }
 
-pub struct EnchanceConfig {
-    pub mode_15_21 : [EnchancementMode; 7],
+pub struct EnhanceConfig {
+    pub mode_15_21 : [EnhancementMode; 7],
     pub star_catch: bool,
     pub ssf_cost_reduce_event: bool,
     pub ssf_boom_reduce_event: bool,
@@ -25,14 +25,14 @@ pub struct StarProp {
     pub success_rate : f64,
     pub boom_rate : f64,
 
-    pub enchance_level : EnchancementMode,
+    pub enhance_level : EnhancementMode,
 }
 
 impl StarProp {
-    pub fn new(stars : u8, config: &EnchanceConfig) -> Self{
+    pub fn new(stars : u8, config: &EnhanceConfig) -> Self{
         let mut mode = match stars {
             15..=21 => config.mode_15_21[(stars - 15) as usize],
-            _ => EnchancementMode::Standard
+            _ => EnhancementMode::Standard
         };
 
         let (mut cost_mult, mut success, mut boom) = Self::get_base_rates(stars, mode);
@@ -52,9 +52,9 @@ impl StarProp {
         if config.safeguard && (15..=17).contains(&stars) && boom > 0.0 {
             // change level to 1 when safeguard is true at 15..=17
             match mode {
-                EnchancementMode::Standard | EnchancementMode::Level1 => {}
-                EnchancementMode::Level2 | EnchancementMode::Level3 | EnchancementMode::Level4 => {
-                    mode = EnchancementMode::Level1;
+                EnhancementMode::Standard | EnhancementMode::Level1 => {}
+                EnhancementMode::Level2 | EnhancementMode::Level3 | EnhancementMode::Level4 => {
+                    mode = EnhancementMode::Level1;
                 }
             }
             boom = 0.0;
@@ -62,16 +62,16 @@ impl StarProp {
         }
                 
         if config.ssf_boom_reduce_event && (1..=21).contains(&stars) {
-            // now it's confirm that ssf applied to new enchancement mode 
+            // now it's confirmed that ssf applied to new enhancement mode 
             boom *= 0.7;
         }
 
         if config.ssf_cost_reduce_event {
             match  mode {
-                EnchancementMode::Standard | EnchancementMode::Level1 => {
+                EnhancementMode::Standard | EnhancementMode::Level1 => {
                     cost_mult -= 0.30;
                 }
-                EnchancementMode::Level2 | EnchancementMode::Level3 | EnchancementMode::Level4 => {
+                EnhancementMode::Level2 | EnhancementMode::Level3 | EnhancementMode::Level4 => {
                     cost_mult *= 0.7;
                 }
             }
@@ -83,42 +83,42 @@ impl StarProp {
             cost_multiply: cost_mult,
             success_rate: success,
             boom_rate: boom,
-            enchance_level: mode,
+            enhance_level: mode,
         }
     }
 
-    pub fn get_base_rates( stars : u8, mode: EnchancementMode) -> (f64, f64, f64) {
+    pub fn get_base_rates( stars : u8, mode: EnhancementMode) -> (f64, f64, f64) {
         match (stars, mode) {
     // Your custom enhancement rules for 15-21
-                (15..=16, EnchancementMode::Level1) => (1.0, 0.30, 0.0210),
-                (15..=16, EnchancementMode::Level2) => (1.5, 0.30, 0.0140),
-                (15..=16, EnchancementMode::Level3) => (2.5, 0.30, 0.0070),
-                (15..=16, EnchancementMode::Level4) => (3.0, 0.30, 0.0000),
+                (15..=16, EnhancementMode::Level1) => (1.0, 0.30, 0.0210),
+                (15..=16, EnhancementMode::Level2) => (1.5, 0.30, 0.0140),
+                (15..=16, EnhancementMode::Level3) => (2.5, 0.30, 0.0070),
+                (15..=16, EnhancementMode::Level4) => (3.0, 0.30, 0.0000),
     
-                (17, EnchancementMode::Level1)      => (1.0, 0.15, 0.0680),
-                (17, EnchancementMode::Level2)      => (1.5, 0.15, 0.0425),
-                (17, EnchancementMode::Level3)      => (2.5, 0.15, 0.0170),
-                (17, EnchancementMode::Level4)      => (3.0, 0.15, 0.0000),
+                (17, EnhancementMode::Level1)      => (1.0, 0.15, 0.0680),
+                (17, EnhancementMode::Level2)      => (1.5, 0.15, 0.0425),
+                (17, EnhancementMode::Level3)      => (2.5, 0.15, 0.0170),
+                (17, EnhancementMode::Level4)      => (3.0, 0.15, 0.0000),
     
-                (18, EnchancementMode::Level1)      => (1.0, 0.15, 0.0680),
-                (18, EnchancementMode::Level2)      => (2.0, 0.12, 0.0440),
-                (18, EnchancementMode::Level3)      => (3.5, 0.10, 0.0180),
-                (18, EnchancementMode::Level4)      => (6.5, 0.08, 0.0000),
+                (18, EnhancementMode::Level1)      => (1.0, 0.15, 0.0680),
+                (18, EnhancementMode::Level2)      => (2.0, 0.12, 0.0440),
+                (18, EnhancementMode::Level3)      => (3.5, 0.10, 0.0180),
+                (18, EnhancementMode::Level4)      => (6.5, 0.08, 0.0000),
     
-                (19, EnchancementMode::Level1)      => (1.0, 0.15, 0.0850),
-                (19, EnchancementMode::Level2)      => (2.0, 0.12, 0.0616),
-                (19, EnchancementMode::Level3)      => (3.5, 0.10, 0.0360),
-                (19, EnchancementMode::Level4)      => (6.5, 0.08, 0.0000),
+                (19, EnhancementMode::Level1)      => (1.0, 0.15, 0.0850),
+                (19, EnhancementMode::Level2)      => (2.0, 0.12, 0.0616),
+                (19, EnhancementMode::Level3)      => (3.5, 0.10, 0.0360),
+                (19, EnhancementMode::Level4)      => (6.5, 0.08, 0.0000),
     
-                (20, EnchancementMode::Level1)      => (1.0, 0.30, 0.1050),
-                (20, EnchancementMode::Level2)      => (2.0, 0.25, 0.0750),
-                (20, EnchancementMode::Level3)      => (3.5, 0.20, 0.0400),
-                (20, EnchancementMode::Level4)      => (6.5, 0.15, 0.0000),
+                (20, EnhancementMode::Level1)      => (1.0, 0.30, 0.1050),
+                (20, EnhancementMode::Level2)      => (2.0, 0.25, 0.0750),
+                (20, EnhancementMode::Level3)      => (3.5, 0.20, 0.0400),
+                (20, EnhancementMode::Level4)      => (6.5, 0.15, 0.0000),
     
-                (21, EnchancementMode::Level1)      => (1.0, 0.15, 0.1275),
-                (21, EnchancementMode::Level2)      => (2.0, 0.12, 0.0880),
-                (21, EnchancementMode::Level3)      => (3.5, 0.10, 0.0450),
-                (21, EnchancementMode::Level4)      => (6.5, 0.08, 0.0000),
+                (21, EnhancementMode::Level1)      => (1.0, 0.15, 0.1275),
+                (21, EnhancementMode::Level2)      => (2.0, 0.12, 0.0880),
+                (21, EnhancementMode::Level3)      => (3.5, 0.10, 0.0450),
+                (21, EnhancementMode::Level4)      => (6.5, 0.08, 0.0000),
     
                 // Standard fallback rates mapped from your original array
                 (0, _)  => (1.0, 0.95, 0.0),

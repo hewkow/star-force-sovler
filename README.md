@@ -30,7 +30,7 @@ A high-performance Star Force cost simulator for MapleStory GMS, written in Rust
 star-force-sovler/
 ├── starforce_core/          # Pure Rust simulation library + binaries
 │   └── src/
-│       ├── starforce.rs     # Core types: EnchanceConfig, StarProp, kms_cost, run_single_sim
+│       ├── starforce.rs     # Core types: EnhanceConfig, StarProp, kms_cost, run_single_sim
 │       ├── lib.rs           # Crate exports
 │       ├── main.rs          # Standalone Rust binary (with integrated test matrix)
 │       └── bin/
@@ -42,7 +42,7 @@ star-force-sovler/
     └── main.py              # Example Python driver
 ```
 
-**Runtime flow:** `EnchanceConfig` → pre-compute `StarProp[30]` + threshold/cost lookup tables → Rayon parallel `run_single_sim` over N trials returning `RunResult` → aggregate into `SimMetrics` (containing `cost_histogram`, `session_booms_histogram`, `per_star_friction`, etc.).
+**Runtime flow:** `EnhanceConfig` → pre-compute `StarProp[30]` + threshold/cost lookup tables → Rayon parallel `run_single_sim` over N trials returning `RunResult` → aggregate into `SimMetrics` (containing `cost_histogram`, `session_booms_histogram`, `per_star_friction`, etc.).
 
 The integer threshold trick (`rate * 2^32` → `u32`) eliminates floating-point comparisons in the hot loop.
 
@@ -56,7 +56,7 @@ The integer threshold trick (`rate * 2^32` → `u32`) eliminates floating-point 
 cargo run --release -p starforce_core
 ```
 
-Configurable constants in `main.rs`: `trials`, `target_stars`, `equipment_level`, `EnchanceConfig`.
+Configurable constants in `main.rs`: `trials`, `target_stars`, `equipment_level`, `EnhanceConfig`.
 
 ### Python (PyO3 extension)
 

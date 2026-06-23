@@ -4,7 +4,7 @@ use rand::rngs::SmallRng;
 use rayon::prelude::*;
 use std::time::Instant;
 
-use starforce_core::starforce::{EnchancementMode, EnchanceConfig, StarProp, kms_cost, run_single_sim, SimMetrics};
+use starforce_core::starforce::{EnhancementMode, EnhanceConfig, StarProp, kms_cost, run_single_sim, SimMetrics};
 
 fn main() {
     let start = Instant::now();
@@ -13,8 +13,8 @@ fn main() {
     let target_stars: usize = 22;
     let equiment_level: u32 = 200;
 
-    let sim_config = EnchanceConfig {
-        mode_15_21: [EnchancementMode::Level1; 7],
+    let sim_config = EnhanceConfig {
+        mode_15_21: [EnhancementMode::Level1; 7],
         star_catch: true,
         ssf_boom_reduce_event: true,
         ssf_cost_reduce_event: true,
@@ -67,7 +67,7 @@ fn main() {
 mod tests {
     use super::*;
 
-    fn run_test_sim(sim_config: &EnchanceConfig, equipment_level: u32, start_stars: usize, target_stars: usize, trials: u32) -> (f32, u64) {
+    fn run_test_sim(sim_config: &EnhanceConfig, equipment_level: u32, start_stars: usize, target_stars: usize, trials: u32) -> (f32, u64) {
         let stars: [StarProp; 30] = core::array::from_fn(|i| {
             StarProp::new(i as u8, sim_config)
         });
@@ -127,7 +127,7 @@ mod tests {
         level: u32,
         start_stars: usize,
         target: usize,
-        mode: EnchancementMode,
+        mode: EnhancementMode,
         star_catch: bool,
         ssf_boom_reduce_event: bool,
         ssf_cost_reduce_event: bool,
@@ -138,7 +138,7 @@ mod tests {
 
     #[test]
     fn test_comprehensive_config_matrix() {
-        use EnchancementMode::*;
+        use EnhancementMode::*;
         let matrix = [
             // Standard
             MatrixEntry { level: 160, start_stars: 0, target: 18, mode: Standard, star_catch: false, ssf_boom_reduce_event: false, ssf_cost_reduce_event: false, safeguard: false, expected_boom: 0.66, expected_cost: 1.70e9 },
@@ -194,7 +194,7 @@ mod tests {
             MatrixEntry { level: 200, start_stars: 0, target: 25, mode: Standard, star_catch: true, ssf_boom_reduce_event: true, ssf_cost_reduce_event: true, safeguard: false, expected_boom: 66.0, expected_cost: 2.25e11 },
             MatrixEntry { level: 200, start_stars: 0, target: 25, mode: Standard, star_catch: true, ssf_boom_reduce_event: true, ssf_cost_reduce_event: true, safeguard: true,  expected_boom: 49.22, expected_cost: 3.09e11 },
 
-            // SSF withg enchancement mode
+            // SSF with enhancement mode
             MatrixEntry { level: 200, start_stars: 0, target: 22, mode: Level2, star_catch: true, ssf_boom_reduce_event: true, ssf_cost_reduce_event: true, safeguard: true, expected_boom: 1.96, expected_cost: 3.566e10 },
             MatrixEntry { level: 200, start_stars: 0, target: 22, mode: Level3, star_catch: true, ssf_boom_reduce_event: true, ssf_cost_reduce_event: true, safeguard: true, expected_boom: 1.04, expected_cost: 5.011e10 },
             MatrixEntry { level: 200, start_stars: 0, target: 22, mode: Level4, star_catch: true, ssf_boom_reduce_event: true, ssf_cost_reduce_event: true, safeguard: true, expected_boom: 0.00, expected_cost: 7.199e10 },
@@ -202,7 +202,7 @@ mod tests {
         ];
 
         for (i, case) in matrix.iter().enumerate() {
-            let config = EnchanceConfig {
+            let config = EnhanceConfig {
                 mode_15_21: [case.mode; 7],
                 star_catch: case.star_catch,
                 ssf_boom_reduce_event: case.ssf_boom_reduce_event,

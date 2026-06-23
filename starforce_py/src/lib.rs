@@ -6,7 +6,7 @@ use rand::rngs::SmallRng;
 use rayon::prelude::*;
 use std::collections::{BTreeMap, HashMap};
 
-use starforce_core::starforce::{kms_cost, run_single_sim, EnchanceConfig, EnchancementMode, StarProp, SimMetrics, BIN_SIZE};
+use starforce_core::starforce::{kms_cost, run_single_sim, EnhanceConfig, EnhancementMode, StarProp, SimMetrics, BIN_SIZE};
 
 // Wrapper class exposed to Python
 #[pyclass]
@@ -82,15 +82,15 @@ impl PySimResult {
     }
 }
 
-fn parse_mode(mode: &str) -> PyResult<EnchancementMode> {
+fn parse_mode(mode: &str) -> PyResult<EnhancementMode> {
     match mode {
-        "Standard" => Ok(EnchancementMode::Standard),
-        "Level1" => Ok(EnchancementMode::Level1),
-        "Level2" => Ok(EnchancementMode::Level2),
-        "Level3" => Ok(EnchancementMode::Level3),
-        "Level4" => Ok(EnchancementMode::Level4),
+        "Standard" => Ok(EnhancementMode::Standard),
+        "Level1" => Ok(EnhancementMode::Level1),
+        "Level2" => Ok(EnhancementMode::Level2),
+        "Level3" => Ok(EnhancementMode::Level3),
+        "Level4" => Ok(EnhancementMode::Level4),
         _ => Err(pyo3::exceptions::PyValueError::new_err(format!(
-            "Invalid EnchancementMode: {}",
+            "Invalid EnhancementMode: {}",
             mode
         ))),
     }
@@ -116,12 +116,12 @@ fn simulate(
         ));
     }
 
-    let mut modes = [EnchancementMode::Standard; 7];
+    let mut modes = [EnhancementMode::Standard; 7];
     for (i, mode_str) in mode_15_21.iter().enumerate() {
         modes[i] = parse_mode(mode_str)?;
     }
 
-    let sim_config = EnchanceConfig {
+    let sim_config = EnhanceConfig {
         mode_15_21: modes,
         star_catch,
         ssf_boom_reduce_event,
