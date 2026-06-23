@@ -30,7 +30,7 @@ pub struct StarProp {
 
 impl StarProp {
     pub fn new(stars : u8, config: &EnchanceConfig) -> Self{
-        let mode = match stars {
+        let mut mode = match stars {
             15..=21 => config.mode_15_21[(stars - 15) as usize],
             _ => EnchancementMode::Standard
         };
@@ -50,31 +50,30 @@ impl StarProp {
         }
         
         if config.safeguard && (15..=17).contains(&stars) && boom > 0.0 {
+            // change level to 1 when safeguard is true at 15..=17
+            match mode {
+                EnchancementMode::Standard | EnchancementMode::Level1 => {}
+                EnchancementMode::Level2 | EnchancementMode::Level3 | EnchancementMode::Level4 => {
+                    mode = EnchancementMode::Level1;
+                }
+            }
             boom = 0.0;
             cost_mult = 3.0;
-        } 
+        }
                 
         if config.ssf_boom_reduce_event && (1..=21).contains(&stars) {
-            match  mode {
-                EnchancementMode::Standard => {
-                    boom *= 0.70;
-                }
-                EnchancementMode::Level1 => {
-                    boom *= 0.70;
-                }
-                _ => panic!("Can't use ssf boom reduce with Enchancement mode!")
-            }
+            // now it's confirm that ssf applied to new enchancement mode 
+            boom *= 0.7;
         }
 
         if config.ssf_cost_reduce_event {
             match  mode {
-                EnchancementMode::Standard => {
+                EnchancementMode::Standard | EnchancementMode::Level1 => {
                     cost_mult -= 0.30;
                 }
-                EnchancementMode::Level1 => {
-                    cost_mult -= 0.30;
+                EnchancementMode::Level2 | EnchancementMode::Level3 | EnchancementMode::Level4 => {
+                    cost_mult *= 0.7;
                 }
-                _ => panic!("Can't use ssf cost reduce with Enchancement mode!")
             }
         }
         

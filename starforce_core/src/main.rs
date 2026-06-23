@@ -8,9 +8,9 @@ use starforce_core::starforce::{EnchancementMode, EnchanceConfig, StarProp, kms_
 
 fn main() {
     let start = Instant::now();
-    let trials: u32 = 100_000_000;
+    let trials: u32 = 10_000_000;
     let start_stars: usize = 0;
-    let target_stars: usize = 23;
+    let target_stars: usize = 22;
     let equiment_level: u32 = 200;
 
     let sim_config = EnchanceConfig {
@@ -193,6 +193,12 @@ mod tests {
             MatrixEntry { level: 200, start_stars: 0, target: 23, mode: Standard, star_catch: true, ssf_boom_reduce_event: true, ssf_cost_reduce_event: true, safeguard: true,  expected_boom: 6.12, expected_cost: 4.769e10 },
             MatrixEntry { level: 200, start_stars: 0, target: 25, mode: Standard, star_catch: true, ssf_boom_reduce_event: true, ssf_cost_reduce_event: true, safeguard: false, expected_boom: 66.0, expected_cost: 2.25e11 },
             MatrixEntry { level: 200, start_stars: 0, target: 25, mode: Standard, star_catch: true, ssf_boom_reduce_event: true, ssf_cost_reduce_event: true, safeguard: true,  expected_boom: 49.22, expected_cost: 3.09e11 },
+
+            // SSF withg enchancement mode
+            MatrixEntry { level: 200, start_stars: 0, target: 22, mode: Level2, star_catch: true, ssf_boom_reduce_event: true, ssf_cost_reduce_event: true, safeguard: true, expected_boom: 1.96, expected_cost: 3.566e10 },
+            MatrixEntry { level: 200, start_stars: 0, target: 22, mode: Level3, star_catch: true, ssf_boom_reduce_event: true, ssf_cost_reduce_event: true, safeguard: true, expected_boom: 1.04, expected_cost: 5.011e10 },
+            MatrixEntry { level: 200, start_stars: 0, target: 22, mode: Level4, star_catch: true, ssf_boom_reduce_event: true, ssf_cost_reduce_event: true, safeguard: true, expected_boom: 0.00, expected_cost: 7.199e10 },
+
         ];
 
         for (i, case) in matrix.iter().enumerate() {
