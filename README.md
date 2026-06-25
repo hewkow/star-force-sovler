@@ -56,7 +56,7 @@ The integer threshold trick (`rate * 2^32` → `u32`) eliminates floating-point 
 cargo run --release -p starforce_core
 ```
 
-Configurable constants in `main.rs`: `trials`, `target_stars`, `equipment_level`, `EnhanceConfig`.
+Configurable constants in `main.rs`: `trials`, `target_stars`, `equipment_level`, `EnhanceConfig`. Both `EnhanceConfig` and `EnhancementMode` implement `Default` for constructing standard/baseline settings.
 
 ### Python (PyO3 extension)
 

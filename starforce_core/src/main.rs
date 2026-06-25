@@ -19,6 +19,7 @@ fn main() {
         ssf_boom_reduce_event: true,
         ssf_cost_reduce_event: true,
         safeguard: false,
+        ..Default::default()
     };
 
     let stars: [StarProp; 30] = core::array::from_fn(|i| StarProp::new(i as u8, &sim_config));

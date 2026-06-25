@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- Derived `Default` implementations for `EnhanceConfig` and `EnhancementMode` to allow convenient construction of baseline simulation settings in Rust.
 - Joint cost-boom distribution tracking via a new `joint_histogram` field in `SimMetrics`.
 - Dataframe-ready `joint_histogram_df` getter on `PySimResult` exporting parallel columns (`cost`, `booms`, `count`) for multi-dimensional Polars DataFrame analysis.
 

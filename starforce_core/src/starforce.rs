@@ -2,8 +2,9 @@ use rand::prelude::*;
 use rand::rngs::SmallRng;
 use std::collections::BTreeMap;
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
 pub enum EnhancementMode {
+    #[default]
     Standard,
     Level1,
     Level2,
@@ -11,6 +12,7 @@ pub enum EnhancementMode {
     Level4,
 }
 
+#[derive(Default)]
 pub struct EnhanceConfig {
     pub mode_15_21 : [EnhancementMode; 7],
     pub star_catch: bool,
