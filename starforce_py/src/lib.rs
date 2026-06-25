@@ -17,14 +17,43 @@ pub struct PySimResult {
     pub total_cost: u128,
     #[pyo3(get)]
     pub total_boom: u64,
+    joint_histogram: BTreeMap<u64, [u32;100]>,
     cost_histogram: BTreeMap<u64, u32>,
     session_booms_histogram: [u32; 100],
     per_star_friction: [[u64; 3]; 30],
+
 }
 
 #[pymethods]
 impl PySimResult {
     // Converts internal BTreeMap to a column-oriented dict for Polars
+    #[getter]
+    fn joint_histogram_df(&self) -> HashMap<&'static str, Vec<u64>> {
+        let mut cost_bin = Vec::new();
+        let mut booms = Vec::new();
+        let mut count = Vec::new();
+
+        // Iterate through the BTreeMap
+        for (&bin, boom_array) in &self.joint_histogram {
+            let actual_cost = bin * BIN_SIZE;
+            
+            // Iterate through the boom array
+            for (b_idx, &cnt) in boom_array.iter().enumerate() {
+                if cnt > 0 { // Only export data where runs actually happened
+                    cost_bin.push(actual_cost);
+                    booms.push(b_idx as u64);
+                    count.push(cnt as u64);
+                }
+            }
+        }
+
+        let mut map = HashMap::new();
+        map.insert("cost", cost_bin);
+        map.insert("booms", booms);
+        map.insert("count", count);
+        map
+    }
+
     #[getter]
     fn cost_histogram_df(&self) -> HashMap<&'static str, Vec<u64>> {
         let mut cost_bin = Vec::with_capacity(self.cost_histogram.len());
@@ -170,8 +199,9 @@ fn simulate(
         total_cost: final_metrics.total_cost,
         total_boom: final_metrics.total_boom,
         cost_histogram: final_metrics.cost_histogram,
-        session_booms_histogram: final_metrics.session_booms_histogram,
-        per_star_friction: final_metrics.per_star_friction,
+        session_booms_histogram: *final_metrics.session_booms_histogram,
+        per_star_friction: *final_metrics.per_star_friction,
+        joint_histogram: final_metrics.joint_histogram,
     })
 }
 

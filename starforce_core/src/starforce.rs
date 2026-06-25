@@ -286,9 +286,10 @@ pub const BIN_SIZE: u64 = 100_000_000;
 
 #[derive(Clone, Debug)]
 pub struct SimMetrics {
+    pub joint_histogram: BTreeMap<u64, [u32;100]>,
     pub cost_histogram: BTreeMap<u64, u32>,
-    pub session_booms_histogram: [u32; 100],
-    pub per_star_friction: [[u64; 3]; 30],
+    pub session_booms_histogram: Box<[u32; 100]>,
+    pub per_star_friction: Box<[[u64; 3]; 30]>,
     pub total_runs: u32,
     pub total_cost: u128,
     pub total_boom: u64,
@@ -297,9 +298,10 @@ pub struct SimMetrics {
 impl Default for SimMetrics {
     fn default() -> Self {
         Self {
+            joint_histogram: BTreeMap::new(),
             cost_histogram: BTreeMap::new(),
-            session_booms_histogram: [0; 100],
-            per_star_friction: [[0; 3]; 30],
+            session_booms_histogram: Box::new([0; 100]),
+            per_star_friction: Box::new([[0; 3]; 30]),
             total_runs: 0,
             total_boom: 0,
             total_cost: 0,
@@ -314,6 +316,9 @@ impl SimMetrics {
 
         let boom_idx = (run.total_booms as usize).min(99);
         self.session_booms_histogram[boom_idx] += 1;
+
+        let boom_array = self.joint_histogram.entry(bin).or_insert([0; 100]);
+        boom_array[boom_idx] += 1;
 
         for i in 0..30 {
             self.per_star_friction[i][0] += run.per_star_friction[i][0];
@@ -333,6 +338,14 @@ impl SimMetrics {
         for i in 0..100 {
             self.session_booms_histogram[i] += other.session_booms_histogram[i];
         }
+        for (bin, other_boom_array) in other.joint_histogram {
+            let self_boom_array = self.joint_histogram.entry(bin).or_insert([0; 100]);
+            
+            for i in 0..100 {
+                self_boom_array[i] += other_boom_array[i];
+            }
+        }
+
         for i in 0..30 {
             self.per_star_friction[i][0] += other.per_star_friction[i][0];
             self.per_star_friction[i][1] += other.per_star_friction[i][1];

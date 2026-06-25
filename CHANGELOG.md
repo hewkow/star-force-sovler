@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- Joint cost-boom distribution tracking via a new `joint_histogram` field in `SimMetrics`.
+- Dataframe-ready `joint_histogram_df` getter on `PySimResult` exporting parallel columns (`cost`, `booms`, `count`) for multi-dimensional Polars DataFrame analysis.
+
+### Fixed
+- Fixed critical debug-mode stack overflow (`STATUS_STACK_OVERFLOW`) on Windows by boxing large array fields (`session_booms_histogram` and `per_star_friction`) in `SimMetrics` to shrink its stack layout footprint by 92% (from 1196 to 92 bytes).
+
 ## [0.4.0] - 2026-06-22
 
 ### Added

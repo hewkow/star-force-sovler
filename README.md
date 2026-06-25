@@ -19,7 +19,7 @@ A high-performance Star Force cost simulator for MapleStory GMS, written in Rust
   - `Level4` — **zero boom**, highest cost multiplier (~3–6.5×)
   - Per-star configuration: each star from 15 to 21 can be set independently
 - **Flexible Starting Star** — configure arbitrary starting star levels 
-- **Comprehensive Simulation Metrics** — tracks and returns detailed statistical distributions (quantized meso cost histogram, session boom distribution, and per-star friction data)
+- **Comprehensive Simulation Metrics** — tracks and returns detailed statistical distributions (quantized meso cost histogram, session boom distribution, joint cost-boom distribution, and per-star friction data)
 - **Validated test matrix** — comprehensive integration tests covering 40+ config combinations, cross-checked against [MathBro's calculator](https://brendonmay.github.io/starforceCalculator/) and [v269 GMS Star Force Calculator](https://starforce.tadeucci.dev/) within 5% tolerance
 
 ---
@@ -42,7 +42,7 @@ star-force-sovler/
     └── main.py              # Example Python driver
 ```
 
-**Runtime flow:** `EnhanceConfig` → pre-compute `StarProp[30]` + threshold/cost lookup tables → Rayon parallel `run_single_sim` over N trials returning `RunResult` → aggregate into `SimMetrics` (containing `cost_histogram`, `session_booms_histogram`, `per_star_friction`, etc.).
+**Runtime flow:** `EnhanceConfig` → pre-compute `StarProp[30]` + threshold/cost lookup tables → Rayon parallel `run_single_sim` over N trials returning `RunResult` → aggregate into `SimMetrics` (containing `cost_histogram`, `session_booms_histogram`, `joint_histogram`, `per_star_friction`, etc.).
 
 The integer threshold trick (`rate * 2^32` → `u32`) eliminates floating-point comparisons in the hot loop.
 
@@ -94,6 +94,7 @@ print(f"Total booms: {result.total_boom:,}")
 cost_histogram_dict = result.cost_histogram_df        # {"cost_bin_start": [...], "count": [...]}
 session_booms_dict = result.session_booms_df          # {"booms": [...], "count": [...]}
 per_star_friction_dict = result.per_star_friction_df  # {"star": [...], "cost_spent": [...], "booms_triggered": [...], "attempts_made": [...]}
+joint_histogram_dict = result.joint_histogram_df      # {"cost": [...], "booms": [...], "count": [...]}
 ```
 
 `mode_15_21` must be a list of exactly 7 strings, one per star (15 → 21), each one of:
