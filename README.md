@@ -1,5 +1,9 @@
 # MapleStory GMS Star Force Monte Carlo Simulator
 
+> [!NOTE]
+> **Project Status: Unmaintained / Sunset**  
+> Active development on this repository has ended as the author has quit MapleStory. Remaining roadmap features—including the WebGUI with per-slot configuration and the Drag-and-drop formula/strategy builder—have been built and maintained in [YASF (Yet Another Star Force)](https://github.com/hewkow/yasf).
+
 A high-performance Star Force cost simulator for MapleStory GMS, written in Rust with a Python binding layer. Uses parallel Monte Carlo simulation to estimate average meso cost and equipment boom counts under various enhancement configurations.
 
 ---
@@ -115,8 +119,8 @@ cargo test --release -p starforce_core
   - [x] Sojourn Time (attempts, booms, and cost spent per star level as bottleneck analysis)
   - [x] Boom Probability Mass Functions (PMF)
 - [ ] Solver: optimal strategy for cost-efficient or boom-minimizing paths
-- [ ] WebGUI with per-slot configuration
-- [ ] Drag-and-drop formula/strategy builder
+- [x] WebGUI with per-slot configuration (implemented in [YASF](https://github.com/hewkow/yasf))
+- [x] Drag-and-drop formula/strategy builder (implemented in [YASF](https://github.com/hewkow/yasf))
 
 ---
 
